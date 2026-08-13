@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#123524" />
+  <title>Poker Settle</title>
+  <style>
+    :root {
+      --green: #123524;
+      --green-light: #e9f5ed;
+      --gold: #e6b84c;
+      --red: #b42318;
+      --ink: #17201b;
+      --muted: #667085;
+      --line: #d7dfd9;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f7f5;
+      color: var(--ink);
+    }
+
+    main {
+      width: min(720px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    h1 { margin: 0; font-size: 2rem; }
+    h2 { font-size: 1.2rem; margin: 0 0 16px; }
+
+    .subtitle {
+      margin: 8px 0 24px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .player-row {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .player-row:last-child { border-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 1rem;
+      border: 1px solid #bfcac2;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(18, 53, 36, 0.12);
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 11px 14px;
+      background: var(--green);
+      color: white;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button.secondary { background: #e8eeea; color: var(--green); }
+    button.danger { background: #fff0ef; color: var(--red); }
+    button.small { padding: 10px 11px; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: var(--green-light);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .stat strong { font-size: 1.1rem; }
+
+    .warning {
+      margin: 12px 0 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff7e0;
+      color: #785700;
+    }
+
+    .success {
+      margin: 12px 0 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .settlement {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .positive { color: #087443; font-weight: bold; }
+    .negative { color: var(--red); font-weight: bold; }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      .player-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .player-row .remove-wrap {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>♠ Poker Settle</h1>
+    <p class="subtitle">Track buy-ins and cash-outs, then settle the table.</p>
+
+    <section class="card">
+      <h2>Game details</h2>
+      <div class="row">
+        <div>
+          <label for="gameName">Game name</label>
+          <input id="gameName" value="Friday Night Poker" />
+        </div>
+        <button class="secondary" id="newGameButton">New game</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Players</h2>
+      <div id="players"></div>
+
+      <div class="actions">
+        <button id="addPlayerButton">+ Add player</button>
+        <button class="secondary" id="calculateButton">Calculate settlement</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Game totals</h2>
+      <div class="summary">
+        <div class="stat">
+          <span>Total buy-ins</span>
+          <strong id="totalBuyins">$0.00</strong>
+        </div>
+        <div class="stat">
+          <span>Total cash-outs</span>
+          <strong id="totalCashouts">$0.00</strong>
+        </div>
+        <div class="stat">
+          <span>Difference</span>
+          <strong id="difference">$0.00</strong>
+        </div>
+      </div>
+      <div id="balanceMessage"></div>
+    </section>
+
+    <section class="card">
+      <h2>Settlement plan</h2>
+      <div id="settlements">
+        <p class="empty">Add players and enter their amounts to calculate payments.</p>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="copyButton">Copy settlement</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "poker-settle-game";
+
+    let game = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+      name: "Friday Night Poker",
+      players: [
+        { id: crypto.randomUUID(), name: "Player 1", buyin: 0, cashout: 0 },
+        { id: crypto.randomUUID(), name: "Player 2", buyin: 0, cashout: 0 }
+      ]
+    };
+
+    const money = value =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(value);
+
+    const number = value => Math.max(0, Number.parseFloat(value) || 0);
+
+    function saveGame() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+    }
+
+    function render() {
+      document.getElementById("gameName").value = game.name;
+
+      const container = document.getElementById("players");
+      container.innerHTML = "";
+
+      game.players.forEach((player, index) => {
+        const row = document.createElement("div");
+        row.className = "player-row";
+
+        row.innerHTML = `
+          <div>
+            <label>Player name</label>
+            <input data-id="${player.id}" data-field="name" value="${escapeHtml(player.name)}" />
+          </div>
+          <div>
+            <label>Buy-ins ($)</label>
+            <input type="number" min="0" step="0.01" data-id="${player.id}" data-field="buyin" value="${player.buyin}" />
+          </div>
+          <div>
+            <label>Cash-out ($)</label>
+            <input type="number" min="0" step="0.01" data-id="${player.id}" data-field="cashout" value="${player.cashout}" />
+          </div>
+          <div class="remove-wrap">
+            <button class="danger small" data-remove="${player.id}" ${game.players.length <= 2 ? "disabled" : ""}>
+              Remove
+            </button>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+
+      updateTotals();
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function updateTotals() {
+      const totalBuyins = game.players.reduce((sum, p) => sum + number(p.buyin), 0);
+      const totalCashouts = game.players.reduce((sum, p) => sum + number(p.cashout), 0);
+      const difference = totalCashouts - totalBuyins;
+
+      document.getElementById("totalBuyins").textContent = money(totalBuyins);
+      document.getElementById("totalCashouts").textContent = money(totalCashouts);
+      document.getElementById("difference").textContent = money(Math.abs(difference));
+
+      const message = document.getElementById("balanceMessage");
+
+      if (Math.abs(difference) < 0.01 && totalBuyins > 0) {
+        message.innerHTML = `<div class="success">Totals match. The game can be settled.</div>`;
+      } else if (totalBuyins === 0 && totalCashouts === 0) {
+        message.innerHTML = "";
+      } else {
+        const direction = difference > 0
+          ? "Cash-outs are higher than buy-ins."
+          : "Buy-ins are higher than cash-outs.";
+        message.innerHTML = `<div class="warning">${direction} Check the entries before settling.</div>`;
+      }
+    }
+
+    function calculateSettlements() {
+      updateTotals();
+
+      const balances = game.players.map(player => ({
+        name: player.name.trim() || "Unnamed player",
+        amount: Math.round((number(player.cashout) - number(player.buyin)) * 100) / 100
+      }));
+
+      const total = balances.reduce((sum, item) => sum + item.amount, 0);
+
+      if (Math.abs(total) > 0.01) {
+        document.getElementById("settlements").innerHTML =
+          `<p class="empty">The totals do not match yet, so a fair settlement cannot be calculated.</p>`;
+        return;
+      }
+
+      const creditors = balances
+        .filter(p => p.amount > 0.009)
+        .map(p => ({ ...p }));
+
+      const debtors = balances
+        .filter(p => p.amount < -0.009)
+        .map(p => ({ ...p, amount: Math.abs(p.amount) }));
+
+      const payments = [];
+      let debtorIndex = 0;
+      let creditorIndex = 0;
+
+      while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
+        const debtor = debtors[debtorIndex];
+        const creditor = creditors[creditorIndex];
+        const amount = Math.min(debtor.amount, creditor.amount);
+        const rounded = Math.round(amount * 100) / 100;
+
+        payments.push({
+          from: debtor.name,
+          to: creditor.name,
+          amount: rounded
+        });
+
+        debtor.amount = Math.round((debtor.amount - rounded) * 100) / 100;
+        creditor.amount = Math.round((creditor.amount - rounded) * 100) / 100;
+
+        if (debtor.amount < 0.01) debtorIndex++;
+        if (creditor.amount < 0.01) creditorIndex++;
+      }
+
+      const result = document.getElementById("settlements");
+
+      if (payments.length === 0) {
+        result.innerHTML = `<div class="success">Everyone is even. No payments are needed.</div>`;
+        return;
+      }
+
+      result.innerHTML = payments.map(payment =>
+        `<div class="settlement"><strong>${escapeHtml(payment.from)}</strong> pays <strong>${escapeHtml(payment.to)}</strong> ${money(payment.amount)}</div>`
+      ).join("");
+    }
+
+    document.getElementById("players").addEventListener("input", event => {
+      const id = event.target.dataset.id;
+      const field = event.target.dataset.field;
+      if (!id || !field) return;
+
+      const player = game.players.find(p => p.id === id);
+      if (!player) return;
+
+      player[field] = field === "name" ? event.target.value : number(event.target.value);
+      saveGame();
+      updateTotals();
+    });
+
+    document.getElementById("players").addEventListener("click", event => {
+      const id = event.target.dataset.remove;
+      if (!id) return;
+
+      game.players = game.players.filter(player => player.id !== id);
+      saveGame();
+      render();
+    });
+
+    document.getElementById("gameName").addEventListener("input", event => {
+      game.name = event.target.value;
+      saveGame();
+    });
+
+    document.getElementById("addPlayerButton").addEventListener("click", () => {
+      game.players.push({
+        id: crypto.randomUUID(),
+        name: `Player ${game.players.length + 1}`,
+        buyin: 0,
+        cashout: 0
+      });
+      saveGame();
+      render();
+    });
+
+    document.getElementById("calculateButton").addEventListener("click", calculateSettlements);
+
+    document.getElementById("newGameButton").addEventListener("click", () => {
+      if (!confirm("Start a new game? Your current game will be replaced.")) return;
+
+      game = {
+        name: "New Poker Game",
+        players: [
+          { id: crypto.randomUUID(), name: "Player 1", buyin: 0, cashout: 0 },
+          { id: crypto.randomUUID(), name: "Player 2", buyin: 0, cashout: 0 }
+        ]
+      };
+
+      saveGame();
+      document.getElementById("settlements").innerHTML =
+        `<p class="empty">Add players and enter their amounts to calculate payments.</p>`;
+      render();
+    });
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      const text = document.getElementById("settlements").innerText;
+
+      try {
+        await navigator.clipboard.writeText(`${game.name}\n\n${text}`);
+        alert("Settlement copied.");
+      } catch {
+        alert("Could not copy automatically. Please select and copy the text.");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
