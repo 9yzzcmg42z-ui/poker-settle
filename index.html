@@ -503,85 +503,6 @@
         color: var(--ink);
       }
 
-      .game-entry-table {
-        margin-top: 14px;
-        overflow-x: auto;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: white;
-      }
-
-      .game-entry-header,
-      .game-entry-row {
-        display: grid;
-        grid-template-columns: minmax(110px, 1.5fr) minmax(90px, 1fr) minmax(90px, 1fr) 42px;
-        min-width: 410px;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-      }
-
-      .game-entry-header {
-        border-bottom: 1px solid var(--line);
-        background: #f7faf8;
-        color: var(--muted);
-        font-size: 0.76rem;
-        font-weight: 700;
-      }
-
-      .game-entry-row {
-        border-bottom: 1px solid #edf1ee;
-      }
-
-      .game-entry-row:last-child {
-        border-bottom: 0;
-      }
-
-      .game-entry-row input {
-        min-width: 0;
-        padding: 9px 10px;
-      }
-
-      .game-player-name {
-        overflow: hidden;
-        color: var(--ink);
-        font-size: 0.95rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .remove-player-button {
-        display: grid;
-        width: 34px;
-        height: 34px;
-        place-items: center;
-        padding: 0;
-        border-radius: 8px;
-        background: var(--red-soft);
-        color: var(--red);
-        font-size: 1.35rem;
-        font-weight: 400;
-        line-height: 1;
-      }
-
-      .remove-player-button:hover {
-        background: #ffd9d6;
-        filter: none;
-      }
-
-      @media (max-width: 720px) {
-        .game-entry-table {
-          margin-left: -2px;
-          margin-right: -2px;
-        }
-
-        .game-entry-header,
-        .game-entry-row {
-          min-width: 390px;
-          padding: 10px;
-        }
-      }
-
     @media (max-width: 720px) {
       .app-shell {
         width: min(100% - 20px, 1120px);
@@ -1527,54 +1448,47 @@
         return;
       }
 
-      container.innerHTML = `
-        <div class="game-entry-table">
-          <div class="game-entry-header">
-            <span>Player</span>
-            <span>Buy-in</span>
-            <span>Cash-out</span>
-            <span></span>
+      container.innerHTML = gameEntries.map(entry => `
+        <div class="game-entry">
+          <div class="game-player-name">
+            <label>Player</label>
+            <strong>${escapeHtml(entry.name)}</strong>
           </div>
 
-          ${gameEntries.map(entry => `
-            <div class="game-entry-row">
-              <strong class="game-player-name">
-                ${escapeHtml(entry.name)}
-              </strong>
+          <div>
+            <label>Buy-ins ($)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value="${entry.buyin}"
+              data-entry-id="${entry.playerId}"
+              data-field="buyin"
+            />
+          </div>
 
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value="${entry.buyin}"
-                aria-label="${escapeHtml(entry.name)} buy-in"
-                data-entry-id="${entry.playerId}"
-                data-field="buyin"
-              />
+          <div>
+            <label>Cash-out ($)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value="${entry.cashout}"
+              data-entry-id="${entry.playerId}"
+              data-field="cashout"
+            />
+          </div>
 
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value="${entry.cashout}"
-                aria-label="${escapeHtml(entry.name)} cash-out"
-                data-entry-id="${entry.playerId}"
-                data-field="cashout"
-              />
-
-              <button
-                type="button"
-                class="remove-player-button"
-                aria-label="Remove ${escapeHtml(entry.name)}"
-                title="Remove ${escapeHtml(entry.name)}"
-                data-remove-entry="${entry.playerId}"
-              >
-                ×
-              </button>
-            </div>
-          `).join("")}
+          <div class="remove-column">
+            <button
+              class="danger small"
+              data-remove-entry="${entry.playerId}"
+            >
+              Remove
+            </button>
+          </div>
         </div>
-      `;
+      `).join("");
     }
 
     function updateGameTotals() {
