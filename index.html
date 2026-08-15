@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#153a27" />
+  <title>Poker Settle</title>
+
+  <style>
+    :root {
+      --green: #153a27;
+      --green-2: #246342;
+      --green-soft: #e8f3eb;
+      --gold: #dcae41;
+      --red: #b42318;
+      --red-soft: #fff0ef;
+      --ink: #17201b;
+      --muted: #667085;
+      --line: #d7dfd9;
+      --page: #f4f7f5;
+      --white: #ffffff;
+      --warning-bg: #fff7e0;
+      --warning-text: #785700;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    button.secondary {
+      background: #e7ece8;
+      color: var(--green);
+    }
+
+    button.danger {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    button.small {
+      padding: 8px 10px;
+      font-size: 0.82rem;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #bfcac2;
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(21, 58, 39, 0.12);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      margin: 20px 0 10px;
+      font-size: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app-shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 20px 0 48px;
+    }
+
+    .top-banner {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--green), var(--green-2));
+      color: white;
+      box-shadow: 0 10px 28px rgba(18, 53, 36, 0.18);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--gold);
+      color: #3b2d00;
+    }
+
+    .banner-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .banner-select {
+      min-width: 180px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+    }
+
+    .banner-select option {
+      background: white;
+      color: var(--ink);
+    }
+
+    .banner-user {
+      max-width: 230px;
+      overflow: hidden;
+      opacity: 0.9;
+      font-size: 0.86rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .banner-button {
+      padding: 9px 11px;
+      background: rgba(255, 255, 255, 0.16);
+      color: white;
+    }
+
+    .banner-button:hover {
+      background: rgba(255, 255, 255, 0.26);
+    }
+
+    .banner-signout {
+      padding: 9px 11px;
+      background: #fff0ef;
+      color: var(--red);
+    }
+
+    .card {
+      margin-bottom: 16px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--white);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .subtitle {
+      margin-bottom: 16px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 10px;
+    }
+
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .workspace-nav {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 4px 0 14px;
+    }
+
+    .workspace-tab {
+      flex: 0 0 auto;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--green);
+    }
+
+    .workspace-tab.active {
+      border-color: var(--green);
+      background: var(--green);
+      color: white;
+    }
+
+    .workspace-panel {
+      display: none;
+    }
+
+    .workspace-panel.active {
+      display: block;
+    }
+
+    .panel-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .group-chip,
+    .game-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .group-chip {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .game-status {
+      margin-left: 7px;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .notice,
+    .success,
+    .warning {
+      padding: 12px;
+      border-radius: 8px;
+      line-height: 1.45;
+    }
+
+    .notice {
+      background: #edf2ff;
+      color: #244496;
+    }
+
+    .success {
+      margin-top: 12px;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .warning {
+      margin-top: 12px;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .empty-workspace {
+      padding: 32px 20px;
+      border: 1px dashed #bfcac2;
+      border-radius: 12px;
+      background: #fafcfb;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .game-entry {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr auto;
+      align-items: end;
+      gap: 10px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .game-entry:last-child {
+      border-bottom: 0;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--green-soft);
+    }
+
+    .stat span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .stat strong {
+      font-size: 1.1rem;
+    }
+
+    .item {
+      margin-top: 10px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      line-height: 1.5;
+    }
+
+    .positive {
+      color: #087443;
+      font-weight: 700;
+    }
+
+    .negative {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .rank {
+      display: inline-block;
+      min-width: 38px;
+      margin-right: 6px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #3b2d00;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .history-game {
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .history-game-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 0;
+      background: white;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .history-game-button:hover {
+      background: #f7faf8;
+      filter: none;
+    }
+
+    .history-arrow {
+      flex: 0 0 auto;
+      color: var(--green);
+      font-size: 0.85rem;
+    }
+
+    .history-game-details {
+      padding: 0 14px 14px;
+      border-top: 1px solid var(--line);
+      background: #fbfdfb;
+    }
+
+    .history-player-header,
+    .history-player-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 0.8fr;
+      gap: 8px;
+      padding: 10px 0;
+    }
+
+    .history-player-header {
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .history-player-row {
+      border-bottom: 1px solid #edf1ee;
+    }
+
+    .history-player-row:last-child {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        width: min(100% - 20px, 1120px);
+      }
+
+      .top-banner {
+        position: static;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .banner-actions {
+        justify-content: stretch;
+      }
+
+      .banner-select,
+      .banner-button,
+      .banner-signout {
+        width: 100%;
+      }
+
+      .banner-user {
+        max-width: 100%;
+      }
+
+      .two-columns,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-title-row {
+        flex-direction: column;
+      }
+
+      .game-entry {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .game-entry .remove-column {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .history-player-header,
+      .history-player-row {
+        grid-template-columns: 1.2fr 0.9fr 0.9fr 0.75fr;
+        gap: 5px;
+        font-size: 0.82rem;
+      }
+
+      .history-player-header {
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <section class="top-banner">
+      <div class="brand">
+        <span class="brand-mark">♠</span>
+        <span>Poker Settle</span>
+      </div>
+
+      <div class="banner-actions hidden" id="signedInBanner">
+        <select class="banner-select" id="groupSelect">
+          <option value="">Choose a group</option>
+        </select>
+
+        <button type="button" class="banner-button" id="manageGroupsButton">
+          Manage groups
+        </button>
+
+        <span class="banner-user" id="signedInEmail"></span>
+
+        <button type="button" class="banner-signout" id="signOutButton">
+          Sign out
+        </button>
+      </div>
+    </section>
+
+    <section class="card" id="authCard">
+      <h2>Welcome to Poker Settle</h2>
+      <p class="subtitle">
+        Sign in to create poker groups, track home games, settle the table,
+        and view your group’s net-profit leaderboard.
+      </p>
+
+      <div class="two-columns">
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="you@example.com" />
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="At least 6 characters" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="signUpButton">Create account</button>
+        <button class="secondary" id="signInButton">Sign in</button>
+      </div>
+
+      <p id="authMessage" class="empty">
+        Sign in to create or join a poker group.
+      </p>
+    </section>
+
+    <section class="hidden" id="dashboard">
+      <nav class="workspace-nav">
+        <button class="workspace-tab active" data-panel="gamePanel">
+          Game
+        </button>
+
+        <button class="workspace-tab" data-panel="rosterPanel">
+          Player roster
+        </button>
+
+        <button class="workspace-tab" data-panel="historyPanel">
+          Group history
+        </button>
+
+        <button class="workspace-tab" data-panel="leaderboardPanel">
+          Leaderboard
+        </button>
+      </nav>
+
+      <section class="workspace-panel active" id="gamePanel">
+        <div class="card">
+          <div class="panel-title-row">
+            <div>
+              <h2>Current game</h2>
+              <p class="subtitle">
+                Add players from the group roster, record buy-ins and cash-outs,
+                then settle the table.
+              </p>
+            </div>
+
+            <div>
+              <span class="group-chip" id="currentGroupChip">
+                No group selected
+              </span>
+              <span class="game-status">Draft</span>
+            </div>
+          </div>
+
+          <div id="noGroupGameMessage" class="empty-workspace">
+            Select or create a group before starting a game.
+          </div>
+
+          <div id="gameWorkspace" class="hidden">
+            <div class="notice">
+              <strong>Draft behavior:</strong> Save game or calculate settlement
+              to save the game as a draft. Close game only when final; closing
+              updates group history and net-profit rankings.
+            </div>
+
+            <div class="two-columns" style="margin-top: 16px;">
+              <div>
+                <label for="gameName">Game name</label>
+                <input id="gameName" value="Friday Night Poker" />
+              </div>
+
+              <div>
+                <label for="gameDate">Game date</label>
+                <input id="gameDate" type="date" />
+              </div>
+            </div>
+
+            <h3>Players in this game</h3>
+
+            <div class="row">
+              <div>
+                <label for="gamePlayerSelect">Choose player from roster</label>
+                <select id="gamePlayerSelect">
+                  <option value="">Choose a player</option>
+                </select>
+              </div>
+
+              <button id="addGamePlayerButton">Add player</button>
+            </div>
+
+            <div id="gameEntries">
+              <p class="empty">Choose players from the group roster.</p>
+            </div>
+
+            <div class="summary">
+              <div class="stat">
+                <span>Total buy-ins</span>
+                <strong id="totalBuyins">$0.00</strong>
+              </div>
+
+              <div class="stat">
+                <span>Total cash-outs</span>
+                <strong id="totalCashouts">$0.00</strong>
+              </div>
+
+              <div class="stat">
+                <span>Difference</span>
+                <strong id="difference">$0.00</strong>
+              </div>
+            </div>
+
+            <div id="gameBalanceMessage"></div>
+
+            <div class="actions">
+              <button id="saveGameButton">Save game</button>
+              <button class="secondary" id="calculateButton">
+                Calculate settlement
+              </button>
+              <button class="danger" id="closeGameButton">
+                Close game
+              </button>
+              <button class="danger" id="clearGameButton">
+                Clear form
+              </button>
+            </div>
+
+            <div id="settlements" style="margin-top: 16px;">
+              <p class="empty">
+                Add players and amounts to calculate settlement.
+              </p>
+            </div>
+
+            <div class="actions">
+              <button class="secondary" id="copyButton">
+                Copy settlement
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-panel" id="rosterPanel">
+        <div class="card">
+          <div class="panel-title-row">
+            <div>
+              <h2 id="rosterTitle">Player roster</h2>
+              <p class="subtitle">
+                Add regular players once and reuse them for every game.
+              </p>
+            </div>
+
+            <span class="group-chip" id="rosterGroupChip">
+              No group selected
+            </span>
+          </div>
+
+          <div id="adminRosterControls">
+            <div class="row">
+              <div>
+                <label for="newPlayerName">Add player</label>
+                <input id="newPlayerName" type="text" placeholder="Example: Jordan" />
+              </div>
+
+              <button id="addRosterPlayerButton">Add player</button>
+            </div>
+          </div>
+
+          <div id="rosterList">
+            <p class="empty">Select a group to view its player roster.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-panel" id="historyPanel">
+        <div class="card">
+          <div class="panel-title-row">
+            <div>
+              <h2>Group game history</h2>
+              <p class="subtitle">
+                Select a game to expand player buy-ins, cash-outs, and net results.
+              </p>
+            </div>
+
+            <span class="group-chip" id="historyGroupChip">
+              No group selected
+            </span>
+          </div>
+
+          <div id="gameHistory">
+            <p class="empty">Select a group to view completed games.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-panel" id="leaderboardPanel">
+        <div class="card">
+          <div class="panel-title-row">
+            <div>
+              <h2>Net-profit leaderboard</h2>
+              <p class="subtitle">
+                Rankings include completed games in the selected group only.
+              </p>
+            </div>
+
+            <span class="group-chip" id="leaderboardGroupChip">
+              No group selected
+            </span>
+          </div>
+
+          <div id="leaderboard">
+            <p class="empty">Select a group to view player rankings.</p>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="card hidden" id="groupManagementCard">
+      <div class="panel-title-row">
+        <div>
+          <h2>Manage groups</h2>
+          <p class="subtitle">
+            Create another poker group or join one with a group code.
+          </p>
+        </div>
+
+        <button type="button" class="secondary" id="closeManageGroupsButton">
+          Done
+        </button>
+      </div>
+
+      <div class="two-columns">
+        <div>
+          <label for="newGroupName">Create a group</label>
+          <input id="newGroupName" type="text" placeholder="Example: CreekFriends" />
+        </div>
+
+        <div style="display: flex; align-items: end;">
+          <button id="createGroupButton" style="width: 100%;">
+            Create group
+          </button>
+        </div>
+      </div>
+
+      <div class="two-columns" style="margin-top: 16px;">
+        <div>
+          <label for="joinCode">Join with a group code</label>
+          <input id="joinCode" maxlength="6" placeholder="Example: K9R7X2" />
+        </div>
+
+        <div style="display: flex; align-items: end;">
+          <button class="secondary" id="joinGroupButton" style="width: 100%;">
+            Join group
+          </button>
+        </div>
+      </div>
+
+      <p id="groupMessage" class="empty" style="margin-top: 16px;"></p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://wifiiekinoswvmwxcsfr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_qMLcpDXxoN_Cq_x2YI5yfA_W1Hgp3lo";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const DRAFT_KEY = "poker-settle-game-draft";
+
+    let currentUser = null;
+    let groups = [];
+    let roster = [];
+    let selectedGroupId =
+      localStorage.getItem("poker-settle-selected-group") || "";
+
+    let gameEntries = [];
+    let currentGameId = null;
+
+    const money = value =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(Number(value || 0));
+
+    const toNumber = value =>
+      Math.max(0, Number.parseFloat(value) || 0);
+
+    const escapeHtml = text =>
+      String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    function todayForInput() {
+      const today = new Date();
+      const offset = today.getTimezoneOffset();
+
+      return new Date(today.getTime() - offset * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+    }
+
+    function createJoinCode() {
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+
+      for (let index = 0; index < 6; index++) {
+        code += alphabet[Math.floor(Math.random() * alphabet.length)];
+      }
+
+      return code;
+    }
+
+    function selectedGroup() {
+      return groups.find(group => group.id === selectedGroupId) || null;
+    }
+
+    function isGroupAdmin() {
+      const group = selectedGroup();
+
+      return Boolean(
+        group &&
+        currentUser &&
+        group.owner_id === currentUser.id
+      );
+    }
+
+    function updateSelectedGroupLabels() {
+      const group = selectedGroup();
+      const groupName = group ? group.name : "No group selected";
+
+      document.getElementById("currentGroupChip").textContent = groupName;
+      document.getElementById("rosterGroupChip").textContent = groupName;
+      document.getElementById("historyGroupChip").textContent = groupName;
+      document.getElementById("leaderboardGroupChip").textContent = groupName;
+
+      document.getElementById("gameWorkspace").classList.toggle(
+        "hidden",
+        !group
+      );
+
+      document.getElementById("noGroupGameMessage").classList.toggle(
+        "hidden",
+        Boolean(group)
+      );
+
+      document.getElementById("rosterTitle").textContent = group
+        ? `${group.name} player roster`
+        : "Player roster";
+    }
+
+    function showPanel(panelId) {
+      document.querySelectorAll(".workspace-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === panelId);
+      });
+
+      document.querySelectorAll(".workspace-tab").forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.panel === panelId
+        );
+      });
+
+      if (panelId === "rosterPanel") loadRoster();
+      if (panelId === "historyPanel") loadHistory();
+      if (panelId === "leaderboardPanel") loadLeaderboard();
+    }
+
+    function updateAuthLayout() {
+      const signedIn = Boolean(currentUser);
+
+      document.getElementById("authCard").classList.toggle(
+        "hidden",
+        signedIn
+      );
+
+      document.getElementById("dashboard").classList.toggle(
+        "hidden",
+        !signedIn
+      );
+
+      document.getElementById("signedInBanner").classList.toggle(
+        "hidden",
+        !signedIn
+      );
+
+      if (!signedIn) {
+        document
+          .getElementById("groupManagementCard")
+          .classList
+          .add("hidden");
+      }
+    }
+
+    async function updateAuthUI() {
+      const { data } = await supabase.auth.getSession();
+      currentUser = data.session?.user ?? null;
+
+      updateAuthLayout();
+
+      const authMessage = document.getElementById("authMessage");
+
+      if (!currentUser) {
+        authMessage.textContent =
+          "Sign in to create or join a poker group.";
+
+        groups = [];
+        roster = [];
+        selectedGroupId = "";
+        gameEntries = [];
+        currentGameId = null;
+
+        renderGroups();
+        renderRoster();
+        renderGameEntries();
+        updateGameTotals();
+        return;
+      }
+
+      document.getElementById("signedInEmail").textContent =
+        currentUser.email;
+
+      authMessage.textContent = "";
+      await loadGroups();
+    }
+
+    async function signUp() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        alert("Enter an email and password.");
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert(
+        "Account created. Check your email if confirmation is enabled."
+      );
+
+      await updateAuthUI();
+    }
+
+    async function signIn() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      await updateAuthUI();
+    }
+
+    async function signOut() {
+      await supabase.auth.signOut();
+      localStorage.removeItem("poker-settle-selected-group");
+      await updateAuthUI();
+    }
+
+    async function loadGroups() {
+      const { data, error } = await supabase
+        .from("poker_groups")
+        .select("id, name, join_code, owner_id, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        alert(`Could not load groups: ${error.message}`);
+        return;
+      }
+
+      groups = data || [];
+
+      if (
+        selectedGroupId &&
+        !groups.some(group => group.id === selectedGroupId)
+      ) {
+        selectedGroupId = "";
+        localStorage.removeItem("poker-settle-selected-group");
+      }
+
+      if (!selectedGroupId && groups.length > 0) {
+        selectedGroupId = groups[0].id;
+        localStorage.setItem(
+          "poker-settle-selected-group",
+          selectedGroupId
+        );
+      }
+
+      renderGroups();
+      await groupChanged();
+    }
+
+    function renderGroups() {
+      const select = document.getElementById("groupSelect");
+
+      select.innerHTML = `
+        <option value="">Choose a group</option>
+        ${groups.map(group => `
+          <option
+            value="${group.id}"
+            ${group.id === selectedGroupId ? "selected" : ""}
+          >
+            ${escapeHtml(group.name)}
+          </option>
+        `).join("")}
+      `;
+
+      const group = selectedGroup();
+      const groupMessage = document.getElementById("groupMessage");
+
+      if (!group) {
+        groupMessage.textContent =
+          "Create or join a group to begin.";
+        updateSelectedGroupLabels();
+        return;
+      }
+
+      if (isGroupAdmin()) {
+        groupMessage.innerHTML = `
+          You are the group admin. Share this code with trusted game hosts:
+          <strong>${escapeHtml(group.join_code)}</strong>
+        `;
+      } else {
+        groupMessage.innerHTML = `
+          You are a member of <strong>${escapeHtml(group.name)}</strong>.
+        `;
+      }
+
+      updateSelectedGroupLabels();
+    }
+
+    async function createGroup() {
+      const nameInput = document.getElementById("newGroupName");
+      const name = nameInput.value.trim();
+
+      if (!name) {
+        alert("Enter a group name.");
+        return;
+      }
+
+      const { data, error } = await supabase.rpc("create_poker_group", {
+        group_name: name,
+        group_join_code: createJoinCode()
+      });
+
+      if (error) {
+        console.error(error);
+        alert(`Could not create group: ${error.message}`);
+        return;
+      }
+
+      selectedGroupId = data;
+      localStorage.setItem("poker-settle-selected-group", selectedGroupId);
+      nameInput.value = "";
+
+      document
+        .getElementById("groupManagementCard")
+        .classList
+        .add("hidden");
+
+      await loadGroups();
+      alert("Group created and selected.");
+    }
+
+    async function joinGroup() {
+      const codeInput = document.getElementById("joinCode");
+      const code = codeInput.value.trim().toUpperCase();
+
+      if (!code) {
+        alert("Enter a group code.");
+        return;
+      }
+
+      const { data, error } = await supabase.rpc("join_poker_group", {
+        code_to_join: code
+      });
+
+      if (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
+
+      selectedGroupId = data;
+      localStorage.setItem("poker-settle-selected-group", selectedGroupId);
+      codeInput.value = "";
+
+      document
+        .getElementById("groupManagementCard")
+        .classList
+        .add("hidden");
+
+      await loadGroups();
+      alert("You joined the group.");
+    }
+
+    async function groupChanged() {
+      if (!selectedGroupId) {
+        roster = [];
+        gameEntries = [];
+        currentGameId = null;
+
+        renderRoster();
+        renderGameEntries();
+        renderGamePlayerOptions();
+        updateGameTotals();
+        renderHistory([]);
+        renderLeaderboard([]);
+        updateSelectedGroupLabels();
+        return;
+      }
+
+      await loadRoster();
+      loadDraft();
+      await loadHistory();
+      await loadLeaderboard();
+      updateSelectedGroupLabels();
+    }
+
+    async function loadRoster() {
+      if (!selectedGroupId) {
+        roster = [];
+        renderRoster();
+        renderGamePlayerOptions();
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("group_players")
+        .select("id, name, active, created_at")
+        .eq("group_id", selectedGroupId)
+        .eq("active", true)
+        .order("name", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      roster = data || [];
+      renderRoster();
+      renderGamePlayerOptions();
+    }
+
+    function renderRoster() {
+      const rosterList = document.getElementById("rosterList");
+      const adminControls = document.getElementById("adminRosterControls");
+
+      adminControls.classList.toggle("hidden", !isGroupAdmin());
+
+      if (!selectedGroupId) {
+        rosterList.innerHTML = `
+          <p class="empty">Select a group to view its player roster.</p>
+        `;
+        return;
+      }
+
+      if (roster.length === 0) {
+        rosterList.innerHTML = `
+          <p class="empty">
+            No players in this roster yet.
+            ${isGroupAdmin()
+              ? "Add the regular poker players above."
+              : "Ask the group admin to add players."
+            }
+          </p>
+        `;
+        return;
+      }
+
+      rosterList.innerHTML = roster.map(player => `
+        <div class="item">
+          <strong>${escapeHtml(player.name)}</strong>
+          ${isGroupAdmin()
+            ? `<button
+                 class="danger small"
+                 style="float: right;"
+                 data-delete-roster="${player.id}"
+               >
+                 Remove
+               </button>`
+            : ""
+          }
+        </div>
+      `).join("");
+    }
+
+    async function addRosterPlayer() {
+      if (!selectedGroupId || !isGroupAdmin()) {
+        alert("Only the group admin can add players.");
+        return;
+      }
+
+      const input = document.getElementById("newPlayerName");
+      const name = input.value.trim();
+
+      if (!name) {
+        alert("Enter a player name.");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("group_players")
+        .insert({
+          group_id: selectedGroupId,
+          name
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          alert("That player is already in this group.");
+        } else {
+          alert(`Could not add player: ${error.message}`);
+        }
+        return;
+      }
+
+      input.value = "";
+      await loadRoster();
+      await loadLeaderboard();
+    }
+
+    async function removeRosterPlayer(playerId) {
+      if (!isGroupAdmin()) {
+        alert("Only the group admin can remove players.");
+        return;
+      }
+
+      const player = roster.find(item => item.id === playerId);
+
+      if (!confirm(`Remove ${player?.name || "this player"} from the roster?`)) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("group_players")
+        .delete()
+        .eq("id", playerId);
+
+      if (error) {
+        alert(`Could not remove player: ${error.message}`);
+        return;
+      }
+
+      gameEntries = gameEntries.filter(
+        entry => entry.playerId !== playerId
+      );
+
+      saveDraft();
+      await loadRoster();
+      renderGameEntries();
+      updateGameTotals();
+    }
+
+    function renderGamePlayerOptions() {
+      const select = document.getElementById("gamePlayerSelect");
+      const selectedIds = new Set(
+        gameEntries.map(entry => entry.playerId)
+      );
+
+      const availablePlayers = roster.filter(
+        player => !selectedIds.has(player.id)
+      );
+
+      select.innerHTML = `
+        <option value="">Choose a player</option>
+        ${availablePlayers.map(player => `
+          <option value="${player.id}">
+            ${escapeHtml(player.name)}
+          </option>
+        `).join("")}
+      `;
+
+      select.disabled = !selectedGroupId || availablePlayers.length === 0;
+      document.getElementById("addGamePlayerButton").disabled =
+        !selectedGroupId || availablePlayers.length === 0;
+    }
+
+    function addGamePlayer() {
+      const select = document.getElementById("gamePlayerSelect");
+      const playerId = select.value;
+      const player = roster.find(item => item.id === playerId);
+
+      if (!player) {
+        alert("Choose a player.");
+        return;
+      }
+
+      gameEntries.push({
+        playerId: player.id,
+        name: player.name,
+        buyin: 0,
+        cashout: 0
+      });
+
+      renderGameEntries();
+      renderGamePlayerOptions();
+      updateGameTotals();
+      saveDraft();
+    }
+
+    function renderGameEntries() {
+      const container = document.getElementById("gameEntries");
+
+      if (gameEntries.length === 0) {
+        container.innerHTML = `
+          <p class="empty">Choose players from the group roster.</p>
+        `;
+        return;
+      }
+
+      container.innerHTML = gameEntries.map(entry => `
+        <div class="game-entry">
+          <div>
+            <label>Player</label>
+            <input value="${escapeHtml(entry.name)}" disabled />
+          </div>
+
+          <div>
+            <label>Buy-ins ($)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value="${entry.buyin}"
+              data-entry-id="${entry.playerId}"
+              data-field="buyin"
+            />
+          </div>
+
+          <div>
+            <label>Cash-out ($)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value="${entry.cashout}"
+              data-entry-id="${entry.playerId}"
+              data-field="cashout"
+            />
+          </div>
+
+          <div class="remove-column">
+            <button
+              class="danger small"
+              data-remove-entry="${entry.playerId}"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function updateGameTotals() {
+      const totalBuyins = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.buyin),
+        0
+      );
+
+      const totalCashouts = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.cashout),
+        0
+      );
+
+      const difference = Math.round(
+        (totalCashouts - totalBuyins) * 100
+      ) / 100;
+
+      document.getElementById("totalBuyins").textContent =
+        money(totalBuyins);
+
+      document.getElementById("totalCashouts").textContent =
+        money(totalCashouts);
+
+      const differenceElement = document.getElementById("difference");
+      const messageElement =
+        document.getElementById("gameBalanceMessage");
+
+      if (gameEntries.length === 0) {
+        differenceElement.textContent = "$0.00";
+        differenceElement.className = "";
+        messageElement.innerHTML = "";
+        return;
+      }
+
+      if (Math.abs(difference) < 0.01) {
+        differenceElement.textContent = "$0.00";
+        differenceElement.className = "positive";
+
+        messageElement.innerHTML = `
+          <div class="success">
+            Totals match. The game can be settled and closed.
+          </div>
+        `;
+        return;
+      }
+
+      differenceElement.className = "negative";
+
+      if (difference > 0) {
+        differenceElement.textContent = `+${money(difference)}`;
+
+        messageElement.innerHTML = `
+          <div class="warning">
+            Cash-outs are <strong>${money(difference)}</strong>
+            higher than buy-ins.
+          </div>
+        `;
+        return;
+      }
+
+      differenceElement.textContent =
+        `-${money(Math.abs(difference))}`;
+
+      messageElement.innerHTML = `
+        <div class="warning">
+          Cash-outs are <strong>${money(Math.abs(difference))}</strong>
+          lower than buy-ins.
+        </div>
+      `;
+    }
+
+    function calculatePayments() {
+      const totalBuyins = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.buyin),
+        0
+      );
+
+      const totalCashouts = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.cashout),
+        0
+      );
+
+      if (gameEntries.length < 2) return [];
+      if (Math.abs(totalBuyins - totalCashouts) > 0.01) return null;
+
+      const creditors = gameEntries
+        .map(entry => ({
+          ...entry,
+          balance: Math.round(
+            (toNumber(entry.cashout) - toNumber(entry.buyin)) * 100
+          ) / 100
+        }))
+        .filter(entry => entry.balance > 0.009)
+        .map(entry => ({ ...entry }));
+
+      const debtors = gameEntries
+        .map(entry => ({
+          ...entry,
+          balance: Math.round(
+            (toNumber(entry.buyin) - toNumber(entry.cashout)) * 100
+          ) / 100
+        }))
+        .filter(entry => entry.balance > 0.009)
+        .map(entry => ({ ...entry }));
+
+      const payments = [];
+      let debtorIndex = 0;
+      let creditorIndex = 0;
+
+      while (
+        debtorIndex < debtors.length &&
+        creditorIndex < creditors.length
+      ) {
+        const debtor = debtors[debtorIndex];
+        const creditor = creditors[creditorIndex];
+
+        const amount = Math.round(
+          Math.min(debtor.balance, creditor.balance) * 100
+        ) / 100;
+
+        payments.push({
+          payerId: debtor.playerId,
+          payerName: debtor.name,
+          receiverId: creditor.playerId,
+          receiverName: creditor.name,
+          amount
+        });
+
+        debtor.balance = Math.round(
+          (debtor.balance - amount) * 100
+        ) / 100;
+
+        creditor.balance = Math.round(
+          (creditor.balance - amount) * 100
+        ) / 100;
+
+        if (debtor.balance < 0.01) debtorIndex++;
+        if (creditor.balance < 0.01) creditorIndex++;
+      }
+
+      return payments;
+    }
+
+    function showSettlement() {
+      const container = document.getElementById("settlements");
+      const payments = calculatePayments();
+
+      if (payments === null) {
+        container.innerHTML = `
+          <p class="empty">
+            Totals do not match yet, so settlement cannot be calculated.
+          </p>
+        `;
+        return;
+      }
+
+      if (payments.length === 0) {
+        container.innerHTML = `
+          <div class="success">
+            Everyone is even. No payments are needed.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = payments.map(payment => `
+        <div class="item">
+          <strong>${escapeHtml(payment.payerName)}</strong>
+          pays
+          <strong>${escapeHtml(payment.receiverName)}</strong>
+          <strong>${money(payment.amount)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function saveDraft() {
+      if (!selectedGroupId) return;
+
+      const draft = {
+        gameId: currentGameId,
+        groupId: selectedGroupId,
+        gameName: document.getElementById("gameName").value,
+        gameDate: document.getElementById("gameDate").value,
+        gameEntries,
+        savedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+      const rawDraft = localStorage.getItem(DRAFT_KEY);
+
+      if (!rawDraft || !selectedGroupId) return;
+
+      try {
+        const draft = JSON.parse(rawDraft);
+
+        if (draft.groupId !== selectedGroupId) return;
+
+        currentGameId = draft.gameId || null;
+
+        document.getElementById("gameName").value =
+          draft.gameName || "Friday Night Poker";
+
+        document.getElementById("gameDate").value =
+          draft.gameDate || todayForInput();
+
+        gameEntries = Array.isArray(draft.gameEntries)
+          ? draft.gameEntries
+          : [];
+
+        renderGameEntries();
+        renderGamePlayerOptions();
+        updateGameTotals();
+      } catch (error) {
+        console.error("Could not restore draft:", error);
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+
+    function resetGameForm() {
+      gameEntries = [];
+      currentGameId = null;
+
+      document.getElementById("gameName").value = "Friday Night Poker";
+      document.getElementById("gameDate").value = todayForInput();
+
+      renderGameEntries();
+      renderGamePlayerOptions();
+      updateGameTotals();
+    }
+
+    function clearGame() {
+      const confirmed = confirm(
+        "Clear this game form?\n\n" +
+        "This removes the unfinished game from this browser."
+      );
+
+      if (!confirmed) return;
+
+      clearDraft();
+      resetGameForm();
+
+      document.getElementById("settlements").innerHTML = `
+        <p class="empty">
+          Add players and amounts to calculate settlement.
+        </p>
+      `;
+    }
+
+    async function saveGame(closeGame = false) {
+      if (!selectedGroupId) {
+        alert("Choose a group first.");
+        return null;
+      }
+
+      if (gameEntries.length < 1) {
+        alert("Add at least one player before saving.");
+        return null;
+      }
+
+      const gameName =
+        document.getElementById("gameName").value.trim() || "Poker Game";
+
+      const gameDate =
+        document.getElementById("gameDate").value || todayForInput();
+
+      const totalBuyins = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.buyin),
+        0
+      );
+
+      const totalCashouts = gameEntries.reduce(
+        (sum, entry) => sum + toNumber(entry.cashout),
+        0
+      );
+
+      if (closeGame && gameEntries.length < 2) {
+        alert("Add at least two players before closing the game.");
+        return null;
+      }
+
+      if (closeGame && totalBuyins <= 0) {
+        alert("Enter buy-ins before closing the game.");
+        return null;
+      }
+
+      if (closeGame && Math.abs(totalBuyins - totalCashouts) > 0.01) {
+        alert(
+          "Buy-ins and cash-outs must match before closing.\n\n" +
+          "Use Save game to keep this unfinished game as a draft."
+        );
+        return null;
+      }
+
+      const gamePayload = {
+        group_id: selectedGroupId,
+        created_by: currentUser.id,
+        name: gameName,
+        played_at: `${gameDate}T12:00:00`,
+        status: closeGame ? "completed" : "draft"
+      };
+
+      let gameId = currentGameId;
+
+      if (!gameId) {
+        const { data, error } = await supabase
+          .from("games")
+          .insert(gamePayload)
+          .select()
+          .single();
+
+        if (error) {
+          console.error(error);
+          alert(`Could not create game: ${error.message}`);
+          return null;
+        }
+
+        gameId = data.id;
+        currentGameId = gameId;
+      } else {
+        const { error } = await supabase
+          .from("games")
+          .update(gamePayload)
+          .eq("id", gameId);
+
+        if (error) {
+          console.error(error);
+          alert(`Could not update game: ${error.message}`);
+          return null;
+        }
+      }
+
+      const entryRows = gameEntries.map(entry => ({
+        game_id: gameId,
+        group_player_id: entry.playerId,
+        buyin: toNumber(entry.buyin),
+        cashout: toNumber(entry.cashout)
+      }));
+
+      const { error: entryError } = await supabase
+        .from("game_entries")
+        .upsert(entryRows, {
+          onConflict: "game_id,group_player_id"
+        });
+
+      if (entryError) {
+        console.error(entryError);
+        alert(`Could not save game players: ${entryError.message}`);
+        return null;
+      }
+
+      const { data: savedEntries, error: savedEntriesError } = await supabase
+        .from("game_entries")
+        .select("id, group_player_id")
+        .eq("game_id", gameId);
+
+      if (!savedEntriesError && savedEntries) {
+        const activePlayerIds = new Set(
+          gameEntries.map(entry => entry.playerId)
+        );
+
+        const removedEntryIds = savedEntries
+          .filter(entry => !activePlayerIds.has(entry.group_player_id))
+          .map(entry => entry.id);
+
+        if (removedEntryIds.length > 0) {
+          await supabase
+            .from("game_entries")
+            .delete()
+            .in("id", removedEntryIds);
+        }
+      }
+
+      if (!closeGame) {
+        saveDraft();
+        return gameId;
+      }
+
+      const payments = calculatePayments();
+
+      if (payments === null) {
+        alert("Cannot close game because totals do not match.");
+        return null;
+      }
+
+      const { error: removeSettlementsError } = await supabase
+        .from("settlements")
+        .delete()
+        .eq("game_id", gameId);
+
+      if (removeSettlementsError) {
+        console.error(removeSettlementsError);
+        alert(`Could not update settlements: ${removeSettlementsError.message}`);
+        return null;
+      }
+
+      if (payments.length > 0) {
+        const settlementRows = payments.map(payment => ({
+          game_id: gameId,
+          payer_player_id: payment.payerId,
+          receiver_player_id: payment.receiverId,
+          amount: payment.amount,
+          paid: false
+        }));
+
+        const { error: settlementError } = await supabase
+          .from("settlements")
+          .insert(settlementRows);
+
+        if (settlementError) {
+          console.error(settlementError);
+          alert(`Could not save settlements: ${settlementError.message}`);
+          return null;
+        }
+      }
+
+      showSettlement();
+
+      await loadHistory();
+      await loadLeaderboard();
+
+      clearDraft();
+      resetGameForm();
+
+      alert(
+        "Game closed successfully.\n\n" +
+        "Group history and net-profit leaderboard have been updated."
+      );
+
+      return gameId;
+    }
+
+    async function loadHistory() {
+      if (!selectedGroupId) {
+        renderHistory([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("games")
+        .select(`
+          id,
+          name,
+          played_at,
+          status,
+          game_entries (
+            buyin,
+            cashout,
+            group_players (
+              name
+            )
+          )
+        `)
+        .eq("group_id", selectedGroupId)
+        .eq("status", "completed")
+        .order("played_at", { ascending: false })
+        .limit(30);
+
+      if (error) {
+        console.error(error);
+        document.getElementById("gameHistory").innerHTML = `
+          <p class="empty">Could not load group game history.</p>
+        `;
+        return;
+      }
+
+      renderHistory(data || []);
+    }
+
+    function renderHistory(games) {
+      const history = document.getElementById("gameHistory");
+
+      if (!selectedGroupId) {
+        history.innerHTML = `
+          <p class="empty">Select a group to view completed games.</p>
+        `;
+        return;
+      }
+
+      if (games.length === 0) {
+        history.innerHTML = `
+          <p class="empty">No completed games saved in this group yet.</p>
+        `;
+        return;
+      }
+
+      history.innerHTML = games.map(game => {
+        const entries = game.game_entries || [];
+
+        const buyins = entries.reduce(
+          (sum, entry) => sum + Number(entry.buyin),
+          0
+        );
+
+        const cashouts = entries.reduce(
+          (sum, entry) => sum + Number(entry.cashout),
+          0
+        );
+
+        const gameDate = new Date(game.played_at).toLocaleDateString();
+
+        const playerRows = entries
+          .sort((a, b) => {
+            const nameA = a.group_players?.name || "";
+            const nameB = b.group_players?.name || "";
+            return nameA.localeCompare(nameB);
+          })
+          .map(entry => {
+            const playerName =
+              entry.group_players?.name || "Unknown player";
+
+            const buyin = Number(entry.buyin);
+            const cashout = Number(entry.cashout);
+            const net = cashout - buyin;
+            const netClass = net >= 0 ? "positive" : "negative";
+            const netText = net >= 0 ? `+${money(net)}` : money(net);
+
+            return `
+              <div class="history-player-row">
+                <span>${escapeHtml(playerName)}</span>
+                <span>${money(buyin)}</span>
+                <span>${money(cashout)}</span>
+                <span class="${netClass}">${netText}</span>
+              </div>
+            `;
+          })
+          .join("");
+
+        return `
+          <div class="history-game">
+            <button
+              type="button"
+              class="history-game-button"
+              data-history-game="${game.id}"
+              aria-expanded="false"
+            >
+              <span>
+                <strong>${escapeHtml(game.name)}</strong><br>
+                <span class="muted">
+                  ${gameDate} · ${entries.length} players ·
+                  Buy-ins: ${money(buyins)} ·
+                  Cash-outs: ${money(cashouts)}
+                </span>
+              </span>
+
+              <span
+                class="history-arrow"
+                data-history-arrow="${game.id}"
+              >
+                Show
+              </span>
+            </button>
+
+            <div
+              class="history-game-details hidden"
+              id="history-details-${game.id}"
+            >
+              <div class="history-player-header">
+                <span>Player</span>
+                <span>Buy-in</span>
+                <span>Cash-out</span>
+                <span>Net</span>
+              </div>
+
+              ${playerRows}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadLeaderboard() {
+      if (!selectedGroupId) {
+        renderLeaderboard([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("group_leaderboard")
+        .select("*")
+        .eq("group_id", selectedGroupId)
+        .order("profit_rank", { ascending: true })
+        .order("player_name", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        document.getElementById("leaderboard").innerHTML = `
+          <p class="empty">Could not load leaderboard.</p>
+        `;
+        return;
+      }
+
+      renderLeaderboard(data || []);
+    }
+
+    function renderLeaderboard(players) {
+      const container = document.getElementById("leaderboard");
+
+      if (!selectedGroupId) {
+        container.innerHTML = `
+          <p class="empty">Select a group to view player rankings.</p>
+        `;
+        return;
+      }
+
+      if (players.length === 0) {
+        container.innerHTML = `
+          <p class="empty">
+            Add players and close completed games to build rankings.
+          </p>
+        `;
+        return;
+      }
+
+      container.innerHTML = players.map(player => {
+        const net = Number(player.net_result);
+        const netClass = net >= 0 ? "positive" : "negative";
+        const netText = net >= 0 ? `+${money(net)}` : money(net);
+
+        return `
+          <div class="item">
+            <span class="rank">#${player.profit_rank}</span>
+            <strong>${escapeHtml(player.player_name)}</strong><br>
+
+            <span class="${netClass}">
+              Net profit: ${netText}
+            </span><br>
+
+            <span class="muted">
+              Buy-ins: ${money(player.total_buyins)} ·
+              Cash-outs: ${money(player.total_cashouts)} ·
+              Games: ${player.games_played}
+            </span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function copySettlement() {
+      const text = document.getElementById("settlements").innerText.trim();
+
+      if (!text) {
+        alert("Calculate settlement first.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Settlement copied.");
+      } catch {
+        alert("Could not copy automatically. Select and copy it manually.");
+      }
+    }
+
+    document.getElementById("signUpButton").addEventListener("click", signUp);
+    document.getElementById("signInButton").addEventListener("click", signIn);
+    document.getElementById("signOutButton").addEventListener("click", signOut);
+
+    document.getElementById("manageGroupsButton").addEventListener("click", () => {
+      document
+        .getElementById("groupManagementCard")
+        .classList
+        .toggle("hidden");
+
+      document
+        .getElementById("groupManagementCard")
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+    });
+
+    document
+      .getElementById("closeManageGroupsButton")
+      .addEventListener("click", () => {
+        document
+          .getElementById("groupManagementCard")
+          .classList
+          .add("hidden");
+      });
+
+    document.getElementById("createGroupButton").addEventListener(
+      "click",
+      createGroup
+    );
+
+    document.getElementById("joinGroupButton").addEventListener(
+      "click",
+      joinGroup
+    );
+
+    document.getElementById("groupSelect").addEventListener(
+      "change",
+      async event => {
+        selectedGroupId = event.target.value;
+        localStorage.setItem(
+          "poker-settle-selected-group",
+          selectedGroupId
+        );
+
+        renderGroups();
+        await groupChanged();
+      }
+    );
+
+    document.querySelectorAll(".workspace-tab").forEach(button => {
+      button.addEventListener("click", () => {
+        showPanel(button.dataset.panel);
+      });
+    });
+
+    document.getElementById("addRosterPlayerButton").addEventListener(
+      "click",
+      addRosterPlayer
+    );
+
+    document.getElementById("rosterList").addEventListener(
+      "click",
+      async event => {
+        const playerId = event.target.dataset.deleteRoster;
+
+        if (playerId) {
+          await removeRosterPlayer(playerId);
+        }
+      }
+    );
+
+    document.getElementById("addGamePlayerButton").addEventListener(
+      "click",
+      addGamePlayer
+    );
+
+    document.getElementById("gameEntries").addEventListener(
+      "input",
+      event => {
+        const playerId = event.target.dataset.entryId;
+        const field = event.target.dataset.field;
+
+        if (!playerId || !field) return;
+
+        const entry = gameEntries.find(
+          item => item.playerId === playerId
+        );
+
+        if (!entry) return;
+
+        entry[field] = toNumber(event.target.value);
+
+        updateGameTotals();
+        saveDraft();
+      }
+    );
+
+    document.getElementById("gameEntries").addEventListener(
+      "click",
+      event => {
+        const playerId = event.target.dataset.removeEntry;
+
+        if (!playerId) return;
+
+        gameEntries = gameEntries.filter(
+          entry => entry.playerId !== playerId
+        );
+
+        renderGameEntries();
+        renderGamePlayerOptions();
+        updateGameTotals();
+        saveDraft();
+      }
+    );
+
+    document.getElementById("gameName").addEventListener(
+      "input",
+      saveDraft
+    );
+
+    document.getElementById("gameDate").addEventListener(
+      "change",
+      saveDraft
+    );
+
+    document.getElementById("saveGameButton").addEventListener(
+      "click",
+      async () => {
+        const gameId = await saveGame(false);
+
+        if (gameId) {
+          alert(
+            "Game saved as a draft. Close game when final to update group history and leaderboard."
+          );
+        }
+      }
+    );
+
+    document.getElementById("calculateButton").addEventListener(
+      "click",
+      async () => {
+        const gameId = await saveGame(false);
+
+        if (gameId) {
+          showSettlement();
+        }
+      }
+    );
+
+    document.getElementById("closeGameButton").addEventListener(
+      "click",
+      async () => {
+        const confirmed = confirm(
+          "Close this game?\n\n" +
+          "The settlement, group history, and net-profit leaderboard will be updated."
+        );
+
+        if (!confirmed) return;
+
+        await saveGame(true);
+      }
+    );
+
+    document.getElementById("clearGameButton").addEventListener(
+      "click",
+      clearGame
+    );
+
+    document.getElementById("copyButton").addEventListener(
+      "click",
+      copySettlement
+    );
+
+    document.getElementById("gameHistory").addEventListener(
+      "click",
+      event => {
+        const button = event.target.closest("[data-history-game]");
+
+        if (!button) return;
+
+        const gameId = button.dataset.historyGame;
+        const details = document.getElementById(
+          `history-details-${gameId}`
+        );
+
+        const arrow = document.querySelector(
+          `[data-history-arrow="${gameId}"]`
+        );
+
+        if (!details || !arrow) return;
+
+        const hidden = details.classList.contains("hidden");
+
+        details.classList.toggle("hidden", !hidden);
+        button.setAttribute("aria-expanded", hidden ? "true" : "false");
+        arrow.textContent = hidden ? "Hide" : "Show";
+      }
+    );
+
+    supabase.auth.onAuthStateChange(() => {
+      updateAuthUI();
+    });
+
+    document.getElementById("gameDate").value = todayForInput();
+
+    updateAuthUI();
+    renderGameEntries();
+    updateGameTotals();
+  </script>
+</body>
+</html>
