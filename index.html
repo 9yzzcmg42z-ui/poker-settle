@@ -596,13 +596,13 @@
     }
 
     .compact-game-list {
-  width: 100%;
-  margin-top: 12px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: white;
-}
+      width: 100%;
+      margin-top: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+    }
 
     .compact-game-row {
       display: grid;      
@@ -758,6 +758,88 @@
   color: var(--muted);
   font-size: 0.78rem;
 }
+/* Prevent native mobile date controls from overflowing cards */
+input[type="date"] {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Allows date inputs to shrink inside grid/flex containers */
+.two-columns > div,
+.row > div {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  input[type="date"] {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 7px;
+    font-size: 16px;
+  }
+}
+
+.game-setup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.game-setup-header h3 {
+  margin: 0;
+}
+
+#gameSetupFields.hidden {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .game-setup-header {
+    align-items: flex-start;
+  }
+
+  #toggleGameSetupButton {
+    flex: 0 0 auto;
+  }
+}
+
+.game-setup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 10px;
+}
+
+.game-setup-header h3 {
+  margin: 0;
+}
+
+button.game-setup-toggle {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: #e7ece8;
+  color: var(--green);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+button.game-setup-toggle:hover {
+  background: #dbe5de;
+}
 
   </style>
 </head>
@@ -824,11 +906,11 @@
         </button>
 
         <button class="workspace-tab" data-panel="rosterPanel">
-          Player roster
+          Roster
         </button>
 
         <button class="workspace-tab" data-panel="historyPanel">
-          Group history
+          History
         </button>
 
         <button class="workspace-tab" data-panel="leaderboardPanel">
@@ -868,7 +950,21 @@
               updates group history and leaderboard.
             </div>
 
-            <div class="two-columns" style="margin-top: 16px;">
+            <div class="game-setup-header">
+              <h3>Game setup</h3>
+
+              <button
+                type="button"
+                class="secondary small"
+                id="toggleGameSetupButton"
+                aria-expanded="true"
+              >
+                Hide
+              </button>
+            </div>
+
+          <div id="gameSetupFields">
+            <div class="two-columns" style="margin-top: 10px;">
               <div>
                 <label for="gameName">Game name</label>
                 <input id="gameName" value="Friday Night Poker" />
@@ -877,8 +973,9 @@
               <div>
                 <label for="gameDate">Game date</label>
                 <input id="gameDate" type="date" />
-              </div>              
+              </div>
             </div>
+
             <div class="row" style="margin-top: 14px;">
               <div>
                 <label for="defaultBuyin">Default buy-in amount ($)</label>
@@ -887,25 +984,27 @@
                   type="number"
                   min="0"
                   step="0.01"
-                  value="15"
                   placeholder="Example: 15"
                 />
               </div>
 
-              <button type="button" class="secondary" id="applyDefaultBuyinButton">
+              <button
+                type="button"
+                class="secondary"
+                id="applyDefaultBuyinButton"
+              >
                 Apply to all players
               </button>
-            </div>
-
-            <h3>Players in this game</h3>
-
-            <div id="addPlayerArea">
+            </div>           
+          </div>
+           <div id="addPlayerArea" style="margin-top: 14px;">
               <label for="gamePlayerSelect">Add player from roster</label>
               <select id="gamePlayerSelect">
                 <option value="">Choose a player</option>
               </select>
             </div>
 
+            <h3>Players in this game</h3>          
             <div id="gameEntries">
               <p class="empty">Choose players from the group roster.</p>
             </div>
@@ -942,7 +1041,7 @@
               </p>
             </div>
 
-            <div class="actions">
+            <div class="actions hidden" id="copySettlementActions">
               <button class="secondary" id="copyButton">
                 Copy settlement
               </button>
@@ -1654,8 +1753,8 @@
       gameEntries.push({
         playerId: player.id,
         name: player.name,
-        buyin: defaultBuyin,
-        cashout: 0,
+        buyin: defaultBuyin || "",
+        cashout: "",
         isEditing: false
       });
 
@@ -1663,6 +1762,9 @@
       renderGamePlayerOptions();
       updateGameTotals();
       saveDraft();
+      if (gameEntries.length === 1) {
+        setGameSetupCollapsed(true);
+      }
     }
 
     function renderGameEntries() {
@@ -1694,7 +1796,7 @@
                       type="number"
                       min="0"
                       step="0.01"
-                      value="${entry.buyin}"
+                      value="${entry.buyin ?? ""}"
                       data-entry-id="${entry.playerId}"
                       data-field="buyin"
                     />
@@ -1706,7 +1808,7 @@
                       type="number"
                       min="0"
                       step="0.01"
-                      value="${entry.cashout}"
+                      value="${entry.cashout ?? ""}"
                       data-entry-id="${entry.playerId}"
                       data-field="cashout"
                     />
@@ -1930,6 +2032,10 @@
 
     function showSettlement() {
       const container = document.getElementById("settlements");
+      
+      const copySettlementActions = document.getElementById("copySettlementActions");
+      copySettlementActions.classList.add("hidden");
+      
       const payments = calculatePayments();
 
       if (payments === null) {
@@ -1947,6 +2053,7 @@
             Everyone is even. No payments are needed.
           </div>
         `;
+        copySettlementActions.classList.remove("hidden");
         return;
       }
 
@@ -1958,6 +2065,8 @@
           <strong>${money(payment.amount)}</strong>
         </div>
       `).join("");
+
+      copySettlementActions.classList.remove("hidden");
     }
 
     function saveDraft() {
@@ -1987,15 +2096,11 @@
 
         currentGameId = draft.gameId || null;
 
-        document.getElementById("gameName").value =
-          draft.gameName || "Friday Night Poker";
+        document.getElementById("gameName").value = draft.gameName || "Friday Night Poker";
 
-        document.getElementById("gameDate").value =
-          draft.gameDate || todayForInput();
+        document.getElementById("gameDate").value = draft.gameDate || todayForInput();
 
-        gameEntries = Array.isArray(draft.gameEntries)
-          ? draft.gameEntries
-          : [];
+        gameEntries = Array.isArray(draft.gameEntries)? draft.gameEntries: [];
 
         renderGameEntries();
         renderGamePlayerOptions();
@@ -2020,6 +2125,7 @@
       renderGameEntries();
       renderGamePlayerOptions();
       updateGameTotals();
+      setGameSetupCollapsed(false);
     }
 
     function clearGame() {
@@ -2038,6 +2144,10 @@
           Add players and amounts to calculate settlement.
         </p>
       `;
+
+      document.getElementById("copySettlementActions").classList.add("hidden");
+
+      setGameSetupCollapsed(false);
     }
 
     async function saveGame(closeGame = false) {
@@ -2792,6 +2902,23 @@ function updateGamePermissions(status = "draft") {
   return `Through ${leaderboardEndDate}`;
 }
 
+function setGameSetupCollapsed(collapsed) {
+  const fields = document.getElementById("gameSetupFields");
+  const button = document.getElementById("toggleGameSetupButton");
+
+  fields.classList.toggle("hidden", collapsed);
+
+  button.textContent = collapsed
+    ? "Edit"
+    : "Hide";
+
+  button.setAttribute("aria-expanded", String(!collapsed));
+}
+
+function updateGameSetupVisibility() {
+  setGameSetupCollapsed(gameEntries.length > 0);
+}
+
     document.getElementById("signUpButton").addEventListener("click", signUp);
     document.getElementById("signInButton").addEventListener("click", signIn);
     document.getElementById("signOutButton").addEventListener("click", signOut);
@@ -3068,6 +3195,16 @@ document.getElementById("gameEntries").addEventListener("change", event => {
         await saveGame(true);
       }
     );
+
+    document
+      .getElementById("toggleGameSetupButton")
+      .addEventListener("click", () => {
+        const fields = document.getElementById("gameSetupFields");
+
+        setGameSetupCollapsed(
+          !fields.classList.contains("hidden")
+        );
+      });
 
     document.getElementById("clearGameButton").addEventListener("click",clearGame);
 
