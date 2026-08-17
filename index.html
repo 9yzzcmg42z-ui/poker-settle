@@ -3,24 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#153a27" />
+  <meta name="theme-color" content="#1f4d36" />
   <title>Poker Vault</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
     :root {
-      --green: #153a27;
-      --green-2: #246342;
-      --green-soft: #e8f3eb;
-      --gold: #dcae41;
-      --red: #b42318;
-      --red-soft: #fff0ef;
-      --ink: #17201b;
-      --muted: #667085;
-      --line: #d7dfd9;
-      --page: #f4f7f5;
+      --green: #1f4d36;
+      --green-2: #2c6a48;
+      --green-soft: #e8f1ea;
+      --gold: #d6a94a;
+      --gold-soft: #fbf1dc;
+      --coral: #c15f3c;
+      --coral-soft: #fbebe3;
+      --red: #b3402a;
+      --red-soft: #fbeeea;
+      --ink: #23221e;
+      --ink-soft: #4a473f;
+      --muted: #8a8578;
+      --line: #e6e1d6;
+      --line-strong: #d8d2c4;
+      --page: #f6f3ec;
+      --surface: #ffffff;
+      --surface-2: #fbf9f4;
       --white: #ffffff;
-      --warning-bg: #fff7e0;
-      --warning-text: #785700;
+      --warning-bg: #fbf1dc;
+      --warning-text: #7a5a12;
+      --shadow-sm: 0 1px 2px rgba(35, 34, 30, 0.05);
+      --shadow-md: 0 10px 30px rgba(35, 34, 30, 0.08);
+      --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+      --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     }
 
     * {
@@ -31,7 +49,8 @@
       margin: 0;
       background: var(--page);
       color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
     }
 
     button,
@@ -42,26 +61,39 @@
 
     button {
       border: 0;
-      border-radius: 8px;
-      padding: 11px 14px;
+      border-radius: 10px;
+      padding: 11px 16px;
       background: var(--green);
       color: white;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 600;
+      font-size: 0.92rem;
+      letter-spacing: 0.1px;
+      transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     button:hover {
       filter: brightness(1.08);
     }
 
+    button:active {
+      transform: translateY(1px);
+    }
+
     button:disabled {
       cursor: not-allowed;
-      opacity: 0.55;
+      opacity: 0.5;
     }
 
     button.secondary {
-      background: #e7ece8;
+      background: var(--surface-2);
       color: var(--green);
+      border: 1px solid var(--line-strong);
+    }
+
+    button.secondary:hover {
+      background: var(--green-soft);
+      filter: none;
     }
 
     button.danger {
@@ -70,25 +102,47 @@
     }
 
     button.small {
-      padding: 8px 10px;
-      font-size: 0.82rem;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+    }
+
+    .link-button {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 2px 0;
+      background: none;
+      color: var(--coral);
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .link-button:hover {
+      filter: none;
+      color: #a34a2c;
     }
 
     input,
     select {
       width: 100%;
-      padding: 11px 12px;
-      border: 1px solid #bfcac2;
-      border-radius: 8px;
-      background: white;
+      padding: 11px 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--surface);
       color: var(--ink);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input::placeholder {
+      color: #b3ae9f;
     }
 
     input:focus,
     select:focus {
       outline: none;
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(21, 58, 39, 0.12);
+      border-color: var(--green-2);
+      box-shadow: 0 0 0 3px rgba(44, 106, 72, 0.14);
     }
 
     h1,
@@ -100,20 +154,27 @@
 
     h2 {
       margin-bottom: 8px;
-      font-size: 1.25rem;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
     }
 
     h3 {
-      margin: 20px 0 10px;
-      font-size: 1rem;
+      margin: 22px 0 12px;
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      font-weight: 600;
     }
 
     label {
       display: block;
       margin-bottom: 6px;
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .hidden {
@@ -123,7 +184,7 @@
     .app-shell {
       width: min(1120px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 20px 0 48px;
+      padding: 24px 0 56px;
     }
 
     .top-banner {
@@ -134,32 +195,36 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 18px;
-      padding: 14px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 16px;
+      margin-bottom: 22px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
       background: linear-gradient(135deg, var(--green), var(--green-2));
       color: white;
-      box-shadow: 0 10px 28px rgba(18, 53, 36, 0.18);
+      box-shadow: var(--shadow-md);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1.15rem;
-      font-weight: 800;
+      gap: 11px;
+      font-family: var(--font-display);
+      font-size: 1.22rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       white-space: nowrap;
     }
 
     .brand-mark {
       display: grid;
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       place-items: center;
-      border-radius: 10px;
+      border-radius: 11px;
       background: var(--gold);
       color: #3b2d00;
+      font-family: var(--font-body);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .banner-actions {
@@ -172,9 +237,9 @@
 
     .banner-select {
       min-width: 180px;
-      padding: 9px 10px;
+      padding: 9px 11px;
       border: 1px solid rgba(255, 255, 255, 0.28);
-      border-radius: 8px;
+      border-radius: 9px;
       background: rgba(255, 255, 255, 0.14);
       color: white;
     }
@@ -194,7 +259,7 @@
     }
 
     .banner-button {
-      padding: 9px 11px;
+      padding: 9px 12px;
       background: rgba(255, 255, 255, 0.16);
       color: white;
     }
@@ -204,24 +269,24 @@
     }
 
     .banner-signout {
-      padding: 9px 11px;
-      background: #fff0ef;
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.94);
       color: var(--red);
     }
 
     .card {
-      margin-bottom: 16px;
-      padding: 20px;
+      margin-bottom: 18px;
+      padding: 24px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--white);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
     }
 
     .subtitle {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       color: var(--muted);
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .row {
@@ -241,28 +306,45 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .workspace-nav {
       display: flex;
-      gap: 9px;
+      gap: 3px;
+      width: fit-content;
+      max-width: 100%;
       overflow-x: auto;
-      padding: 4px 0 14px;
+      margin: 0 0 20px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface-2);
     }
 
     .workspace-tab {
       flex: 0 0 auto;
-      padding: 10px 13px;
-      border: 1px solid var(--line);
-      background: white;
+      padding: 9px 16px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .workspace-tab:hover {
+      filter: none;
       color: var(--green);
     }
 
     .workspace-tab.active {
-      border-color: var(--green);
-      background: var(--green);
-      color: white;
+      background: var(--surface);
+      color: var(--green);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .workspace-tab.active:hover {
+      color: var(--green);
     }
 
     .workspace-panel {
@@ -286,9 +368,9 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 6px 10px;
+      padding: 6px 11px;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
     }
 
@@ -306,14 +388,14 @@
     .notice,
     .success,
     .warning {
-      padding: 12px;
-      border-radius: 8px;
-      line-height: 1.45;
+      padding: 13px 14px;
+      border-radius: 12px;
+      line-height: 1.5;
     }
 
     .notice {
-      background: #edf2ff;
-      color: #244496;
+      background: var(--coral-soft);
+      color: #8a3e22;
     }
 
     .success {
@@ -334,10 +416,10 @@
     }
 
     .empty-workspace {
-      padding: 32px 20px;
-      border: 1px dashed #bfcac2;
-      border-radius: 12px;
-      background: #fafcfb;
+      padding: 36px 20px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 14px;
+      background: var(--surface-2);
       color: var(--muted);
       text-align: center;
     }
@@ -359,36 +441,42 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      margin: 16px 0;
+      margin: 18px 0;
     }
 
     .stat {
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 13px;
       background: var(--green-soft);
     }
 
     .stat span {
       display: block;
       margin-bottom: 5px;
-      color: var(--muted);
-      font-size: 0.78rem;
+      color: var(--green-2);
+      font-size: 0.76rem;
+      font-weight: 600;
+      opacity: 0.8;
     }
 
     .stat strong {
-      font-size: 1.1rem;
+      font-family: var(--font-display);
+      font-size: 1.22rem;
+      font-weight: 600;
+      color: var(--green);
     }
 
     .item {
       margin-top: 10px;
-      padding: 13px;
+      padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 9px;
+      border-radius: 12px;
       line-height: 1.5;
+      background: var(--surface-2);
     }
 
     .positive {
-      color: #087443;
+      color: #1e7a4c;
       font-weight: 700;
     }
 
@@ -418,7 +506,7 @@
       margin-top: 10px;
       overflow: hidden;
       border: 1px solid var(--line);
-      border-radius: 9px;
+      border-radius: 13px;
     }
 
     .history-game-button {
@@ -427,15 +515,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px;
+      padding: 15px;
       border-radius: 0;
-      background: white;
+      background: var(--surface);
       color: var(--ink);
       text-align: left;
     }
 
     .history-game-button:hover {
-      background: #f7faf8;
+      background: var(--surface-2);
       filter: none;
     }
 
@@ -446,9 +534,9 @@
     }
 
     .history-game-details {
-      padding: 0 14px 14px;
+      padding: 0 15px 15px;
       border-top: 1px solid var(--line);
-      background: #fbfdfb;
+      background: var(--surface-2);
     }
 
     .history-player-header,
@@ -480,10 +568,10 @@
       display: flex;
       align-items: center;
       padding: 11px 12px;
-      border: 1px solid #d7dfd9;
-      border-radius: 8px;
-      background: #f7faf8;
-      color: #17201b;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--surface-2);
+      color: var(--ink);
       font-weight: 700;
     }
 
@@ -600,19 +688,19 @@
       margin-top: 12px;
       overflow: hidden;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: white;
+      border-radius: 13px;
+      background: var(--surface);
     }
 
     .compact-game-row {
-      display: grid;      
+      display: grid;
       grid-template-columns: minmax(48px, 1fr) 74px 74px 62px;
       width: 100%;
       min-width: 0;
       align-items: center;
       gap: 4px;
-      padding: 9px 7px;
-      border-bottom: 1px solid #edf1ee;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
     }
 
     .compact-game-row:last-child {
@@ -620,7 +708,7 @@
     }
 
     .compact-game-row.editing {
-      background: #fbfdfb;
+      background: var(--surface-2);
     }
 
     .compact-player-name {
@@ -650,7 +738,7 @@
     }
 
     .buyin-money {
-      color: #1b67b0;
+      color: var(--green-2);
     }
 
     .cashout-money {
@@ -674,14 +762,15 @@
       height: 28px;
       place-items: center;
       padding: 0;
-      border-radius: 7px;
+      border-radius: 8px;
       font-size: 0.9rem;
       line-height: 1;
+      transition: filter 0.15s ease, transform 0.15s ease;
     }
 
     .edit-icon {
-      background: #edf2ff;
-      color: #244496;
+      background: var(--coral-soft);
+      color: var(--coral);
     }
 
     .done-icon {
@@ -753,8 +842,9 @@
   width: 28px;
   height: 28px;
   place-items: center;
-  border-radius: 7px;
-  background: #f0f2f1;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.78rem;
 }
@@ -827,10 +917,10 @@ button.game-setup-toggle {
   align-items: center;
   justify-content: center;
   min-height: 36px;
-  padding: 8px 11px;
-  border: 0;
-  border-radius: 8px;
-  background: #e7ece8;
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface-2);
   color: var(--green);
   cursor: pointer;
   font-size: 0.82rem;
@@ -838,7 +928,7 @@ button.game-setup-toggle {
 }
 
 button.game-setup-toggle:hover {
-  background: #dbe5de;
+  background: var(--green-soft);
 }
 
   </style>
@@ -872,9 +962,7 @@ button.game-setup-toggle:hover {
     <section class="card" id="authCard">
       <h2>Welcome to Poker Vault</h2>
       <p class="subtitle">
-        <p class="subtitle">
-          Track the table, settle every game, and check your group’s standings.
-        </p>
+        Track the table, settle every game, and check your group's standings.
       </p>
 
       <div class="two-columns">
@@ -893,6 +981,10 @@ button.game-setup-toggle:hover {
         <button id="signUpButton">Create account</button>
         <button class="secondary" id="signInButton">Sign in</button>
       </div>
+
+      <button type="button" class="link-button" id="forgotPasswordButton">
+        Forgot password?
+      </button>
 
       <p id="authMessage" class="empty">
         Sign in to create or join a poker group.
@@ -1417,6 +1509,26 @@ button.game-setup-toggle:hover {
       await updateAuthUI();
     }
 
+    async function resetPassword() {
+      const email = document.getElementById("email").value.trim();
+
+      if (!email) {
+        alert("Enter your email above first, then select Forgot password.");
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert(`Password reset email sent to ${email}.`);
+    }
+
     async function loadGroups() {
       const { data, error } = await supabase
         .from("poker_groups")
@@ -1696,7 +1808,7 @@ button.game-setup-toggle:hover {
 
       const { error } = await supabase
         .from("group_players")
-        .delete()
+        .update({ active: false })
         .eq("id", playerId);
 
       if (error) {
@@ -2915,6 +3027,7 @@ function updateGameSetupVisibility() {
     document.getElementById("signUpButton").addEventListener("click", signUp);
     document.getElementById("signInButton").addEventListener("click", signIn);
     document.getElementById("signOutButton").addEventListener("click", signOut);
+    document.getElementById("forgotPasswordButton").addEventListener("click", resetPassword);
 
     document.getElementById("manageGroupsButton").addEventListener("click", () => {
       document
@@ -3114,32 +3227,6 @@ document.getElementById("gameEntries").addEventListener("change", event => {
         saveDraft();
       }
     });
-
-    document.getElementById("gameEntries").addEventListener("change", event => {
-      const input = event.target;
-
-      if (!input.matches("input[data-entry-id][data-field]")) {
-        return;
-      }
-
-      const playerId = input.dataset.entryId;
-      const field = input.dataset.field;
-
-      const entry = gameEntries.find(
-        item => item.playerId === playerId
-      );
-
-      if (!entry) {
-        return;
-      }
-
-      entry[field] = toNumber(input.value);
-
-      updateGameTotals();
-      saveDraft();
-    });
-
-
 
     document.getElementById("gameName").addEventListener(
       "input",
