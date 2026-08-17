@@ -572,6 +572,160 @@
         font-size: 0.7rem;
       }
     }
+
+    .compact-game-list {
+  width: 100%;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+
+    .compact-game-row {
+      display: grid;      
+      grid-template-columns: minmax(48px, 1fr) 74px 74px 62px;
+      width: 100%;
+      min-width: 0;
+      align-items: center;
+      gap: 4px;
+      padding: 9px 7px;
+      border-bottom: 1px solid #edf1ee;
+    }
+
+    .compact-game-row:last-child {
+      border-bottom: 0;
+    }
+
+    .compact-game-row.editing {
+      background: #fbfdfb;
+    }
+
+    .compact-player-name {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 0.92rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .compact-money {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+      font-size: 0.86rem;
+      font-weight: 800;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .compact-money small {
+      margin-bottom: 1px;
+      font-size: 0.66rem;
+      font-weight: 700;
+    }
+
+    .buyin-money {
+      color: #1b67b0;
+    }
+
+    .cashout-money {
+      color: var(--red);
+    }
+
+
+    .compact-edit-input label {
+      margin-bottom: 4px;
+      font-size: 0.7rem;
+    }
+
+    .compact-edit-input input {
+      min-width: 0;
+      padding: 9px;
+    }
+
+    .compact-icon-button {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      padding: 0;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    .edit-icon {
+      background: #edf2ff;
+      color: #244496;
+    }
+
+    .done-icon {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .remove-icon {
+      background: var(--red-soft);
+      color: var(--red);
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+
+    .compact-game-row > .edit-icon,
+    .compact-game-row > .done-icon {
+      justify-self: end;
+    }
+
+    .compact-game-row > .remove-icon {
+      justify-self: start;
+    }
+
+    .compact-edit-input label {
+      margin-bottom: 3px;
+      font-size: 0.64rem;
+    }
+
+    .compact-edit-input input {
+      min-width: 0;
+      padding: 7px 5px;
+      font-size: 0.85rem;
+    }
+
+
+  @media (max-width: 420px) {
+    .compact-game-row {
+      grid-template-columns: minmax(42px, 1fr) 67px 67px 58px;
+      gap: 3px;
+      padding: 8px 6px;
+    }
+
+    .compact-money {
+      font-size: 0.8rem;
+    }
+
+    .compact-money small {
+      font-size: 0.62rem;
+    }
+
+    .compact-player-name {
+      font-size: 0.87rem;
+    }
+
+    .compact-icon-button {
+      width: 27px;
+      height: 27px;
+    }
+  }
+
+  .compact-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
   </style>
 </head>
 
@@ -688,7 +842,24 @@
               <div>
                 <label for="gameDate">Game date</label>
                 <input id="gameDate" type="date" />
+              </div>              
+            </div>
+            <div class="row" style="margin-top: 14px;">
+              <div>
+                <label for="defaultBuyin">Default buy-in amount ($)</label>
+                <input
+                  id="defaultBuyin"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value="15"
+                  placeholder="Example: 15"
+                />
               </div>
+
+              <button type="button" class="secondary" id="applyDefaultBuyinButton">
+                Apply to all players
+              </button>
             </div>
 
             <h3>Players in this game</h3>
@@ -1425,11 +1596,16 @@
         return;
       }
 
+      const defaultBuyin = toNumber(
+        document.getElementById("defaultBuyin").value
+      );
+
       gameEntries.push({
         playerId: player.id,
         name: player.name,
-        buyin: 0,
-        cashout: 0
+        buyin: defaultBuyin,
+        cashout: 0,
+        isEditing: false
       });
 
       renderGameEntries();
@@ -1448,47 +1624,107 @@
         return;
       }
 
-      container.innerHTML = gameEntries.map(entry => `
-        <div class="game-entry">
-          <div class="game-player-name">
-            <label>Player</label>
-            <strong>${escapeHtml(entry.name)}</strong>
-          </div>
+      container.innerHTML = `
+        <div class="compact-game-list">
+          ${gameEntries.map(entry => {
+            const isEditing = entry.isEditing === true;
 
-          <div>
-            <label>Buy-ins ($)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value="${entry.buyin}"
-              data-entry-id="${entry.playerId}"
-              data-field="buyin"
-            />
-          </div>
+            if (isEditing) {
+              return `
+                <div class="compact-game-row editing">
+                  <strong class="compact-player-name">
+                    ${escapeHtml(entry.name)}
+                  </strong>
 
-          <div>
-            <label>Cash-out ($)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value="${entry.cashout}"
-              data-entry-id="${entry.playerId}"
-              data-field="cashout"
-            />
-          </div>
+                  <div class="compact-edit-input">
+                    <label>Buy-in</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="${entry.buyin}"
+                      data-entry-id="${entry.playerId}"
+                      data-field="buyin"
+                    />
+                  </div>
 
-          <div class="remove-column">
-            <button
-              class="danger small"
-              data-remove-entry="${entry.playerId}"
-            >
-              Remove
-            </button>
-          </div>
+                  <div class="compact-edit-input">
+                    <label>Cash-out</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="${entry.cashout}"
+                      data-entry-id="${entry.playerId}"
+                      data-field="cashout"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    class="compact-icon-button done-icon"
+                    title="Done editing"
+                    aria-label="Done editing ${escapeHtml(entry.name)}"
+                    data-done-entry="${entry.playerId}"
+                  >
+                    ✓
+                  </button>
+
+                  <button
+                    type="button"
+                    class="compact-icon-button remove-icon"
+                    title="Remove player"
+                    aria-label="Remove ${escapeHtml(entry.name)}"
+                    data-remove-entry="${entry.playerId}"
+                  >
+                    ×
+                  </button>
+                </div>
+              `;
+            }
+
+            return `
+              <div class="compact-game-row">
+                <strong class="compact-player-name">
+                  ${escapeHtml(entry.name)}
+                </strong>
+
+                <span class="compact-money buyin-money">
+                  <small>Buy-in</small>
+                  ${money(entry.buyin)}
+                </span>
+
+                <span class="compact-money cashout-money">
+                  <small>Cash-out</small>
+                  ${money(entry.cashout)}
+                </span>
+
+                <div class="compact-actions">
+                  <button
+                    type="button"
+                    class="compact-icon-button edit-icon"
+                    title="Edit amounts"
+                    aria-label="Edit ${escapeHtml(entry.name)}"
+                    data-edit-entry="${entry.playerId}"
+                  >
+                    ✎
+                  </button>
+
+                  <button
+                    type="button"
+                    class="compact-icon-button remove-icon"
+                    title="Remove player"
+                    aria-label="Remove ${escapeHtml(entry.name)}"
+                    data-remove-entry="${entry.playerId}"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join("")}
         </div>
-      `).join("");
+      `;
     }
 
     function updateGameTotals() {
@@ -2149,6 +2385,32 @@
       }
     }
 
+    function applyDefaultBuyinToPlayers() {
+      const defaultBuyin = toNumber(
+        document.getElementById("defaultBuyin").value
+      );
+
+      if (gameEntries.length === 0) {
+        alert("Add players before applying a default buy-in.");
+        return;
+      }
+
+      const confirmed = confirm(
+        `Set the buy-in to ${money(defaultBuyin)} for all current players?`
+      );
+
+      if (!confirmed) return;
+
+      gameEntries = gameEntries.map(entry => ({
+        ...entry,
+        buyin: defaultBuyin
+      }));
+
+      renderGameEntries();
+      updateGameTotals();
+      saveDraft();
+    }
+
     document.getElementById("signUpButton").addEventListener("click", signUp);
     document.getElementById("signInButton").addEventListener("click", signIn);
     document.getElementById("signOutButton").addEventListener("click", signOut);
@@ -2166,6 +2428,8 @@
           block: "start"
         });
     });
+
+    document.getElementById("applyDefaultBuyinButton").addEventListener("click", applyDefaultBuyinToPlayers);
 
     document
       .getElementById("closeManageGroupsButton")
@@ -2227,36 +2491,87 @@
       addGamePlayer
     );
 
-    document.getElementById("gameEntries").addEventListener(
-      "input",
-      event => {
-        const playerId = event.target.dataset.entryId;
-        const field = event.target.dataset.field;
+   
 
-        if (!playerId || !field) return;
+document.getElementById("gameEntries").addEventListener("input", event => {
+  const input = event.target;
 
-        const entry = gameEntries.find(
-          item => item.playerId === playerId
-        );
+  if (!input.matches("input[data-entry-id][data-field]")) {
+    return;
+  }
 
-        if (!entry) return;
+  const playerId = input.dataset.entryId;
+  const field = input.dataset.field;
 
-        entry[field] = toNumber(event.target.value);
+  const entry = gameEntries.find(
+    item => item.playerId === playerId
+  );
+
+  if (!entry) return;
+
+  entry[field] = toNumber(input.value);
+
+  updateGameTotals();
+  saveDraft();
+});
+
+document.getElementById("gameEntries").addEventListener("change", event => {
+  const input = event.target;
+
+  if (!input.matches("input[data-entry-id][data-field]")) {
+    return;
+  }
+
+  const playerId = input.dataset.entryId;
+  const field = input.dataset.field;
+
+  const entry = gameEntries.find(
+    item => item.playerId === playerId
+  );
+
+  if (!entry) return;
+
+  entry[field] = toNumber(input.value);
+
+  updateGameTotals();
+  saveDraft();
+});
+
+    document.getElementById("gameEntries").addEventListener("click", event => {
+      const button = event.target.closest("button");
+
+      if (!button) return;
+
+      const editPlayerId = button.dataset.editEntry;
+      const donePlayerId = button.dataset.doneEntry;
+      const removePlayerId = button.dataset.removeEntry;
+
+      if (editPlayerId) {
+        gameEntries = gameEntries.map(entry => ({
+          ...entry,
+          isEditing: entry.playerId === editPlayerId
+        }));
+
+        renderGameEntries();
+        return;
+      }
+
+      if (donePlayerId) {
+        gameEntries = gameEntries.map(entry => ({
+          ...entry,
+          isEditing: false
+        }));
 
         updateGameTotals();
         saveDraft();
+        renderGameEntries();
+
+        return;
       }
-    );
 
-    document.getElementById("gameEntries").addEventListener(
-      "click",
-      event => {
-        const playerId = event.target.dataset.removeEntry;
-
-        if (!playerId) return;
-
+      if (removePlayerId) {
         gameEntries = gameEntries.filter(
-          entry => entry.playerId !== playerId
+          entry => entry.playerId !== removePlayerId
         );
 
         renderGameEntries();
@@ -2264,7 +2579,33 @@
         updateGameTotals();
         saveDraft();
       }
-    );
+    });
+
+    document.getElementById("gameEntries").addEventListener("change", event => {
+      const input = event.target;
+
+      if (!input.matches("input[data-entry-id][data-field]")) {
+        return;
+      }
+
+      const playerId = input.dataset.entryId;
+      const field = input.dataset.field;
+
+      const entry = gameEntries.find(
+        item => item.playerId === playerId
+      );
+
+      if (!entry) {
+        return;
+      }
+
+      entry[field] = toNumber(input.value);
+
+      updateGameTotals();
+      saveDraft();
+    });
+
+
 
     document.getElementById("gameName").addEventListener(
       "input",
