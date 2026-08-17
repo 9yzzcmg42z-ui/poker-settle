@@ -2732,40 +2732,31 @@ async function loadActiveGame(gameId) {
 
 function updateGamePermissions(status = "draft") {
   const editable = canEditActiveGame();
+  const viewingAnotherPlayersGame = !editable && Boolean(activeGameId);
   const readOnlyMessage = document.getElementById("gameReadOnlyMessage");
 
   document.getElementById("gameName").disabled = !editable;
   document.getElementById("gameDate").disabled = !editable;
   document.getElementById("gamePlayerSelect").disabled = !editable;
 
-  document.getElementById("saveGameButton").classList.toggle(
-    "hidden",
-    !editable
-  );
+  document.getElementById("defaultBuyin").closest(".row").classList.toggle("hidden", viewingAnotherPlayersGame);
 
-  document.getElementById("calculateButton").classList.toggle(
-    "hidden",
-    !editable
-  );
+  document.getElementById("addPlayerArea").classList.toggle("hidden", viewingAnotherPlayersGame);
 
-  document.getElementById("closeGameButton").classList.toggle(
-    "hidden",
-    !editable
-  );
+  document.getElementById("toggleGameSetupButton").classList.toggle("hidden", viewingAnotherPlayersGame);
 
-  document.getElementById("clearGameButton").classList.toggle(
-    "hidden",
-    !editable
-  );
+  document.getElementById("saveGameButton").classList.toggle("hidden",!editable);
+
+  document.getElementById("calculateButton").classList.toggle("hidden",!editable);
+
+  document.getElementById("closeGameButton").classList.toggle("hidden",!editable);
+
+  document.getElementById("clearGameButton").classList.toggle("hidden",!editable);
   document.getElementById("defaultBuyin").disabled = !editable;
-  document.getElementById("applyDefaultBuyinButton").classList.toggle(
-    "hidden",
-    !editable
-  );
-  document.getElementById("addPlayerArea").classList.toggle(
-    "hidden",
-    !editable
-  );
+  document.getElementById("applyDefaultBuyinButton").classList.toggle("hidden",!editable);
+  document.getElementById("addPlayerArea").classList.toggle("hidden",!editable);
+
+  document.getElementById("toggleGameSetupButton").classList.toggle("hidden", !editable);
 
   if (!editable) {
     readOnlyMessage.classList.remove("hidden");
@@ -2789,6 +2780,8 @@ function updateGamePermissions(status = "draft") {
       </div>
     `;
   }
+
+
 }
 
   function subscribeToActiveGame(gameId) {
