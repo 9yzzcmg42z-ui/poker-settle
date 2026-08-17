@@ -528,9 +528,31 @@
         max-width: 100%;
       }
 
-      .two-columns,
-      .summary {
+      .two-columns {
         grid-template-columns: 1fr;
+      }
+
+      .summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .summary .stat {
+        min-width: 0;
+        padding: 9px 7px;
+      }
+
+      .summary .stat span {
+        margin-bottom: 3px;
+        font-size: 0.64rem;
+        line-height: 1.15;
+      }
+
+      .summary .stat strong {
+        display: block;
+        overflow: hidden;
+        font-size: 0.88rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .row {
@@ -726,6 +748,17 @@
   gap: 4px;
 }
 
+.viewer-lock {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 7px;
+  background: #f0f2f1;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
   </style>
 </head>
 
@@ -819,14 +852,16 @@
                 No group selected
               </span>
               <span class="game-status">Draft</span>
-            </div>
+            </div>            
           </div>
+          <div id="liveGameBanner" class="hidden" style="margin-top: 12px;"></div>
 
           <div id="noGroupGameMessage" class="empty-workspace">
             Select or create a group before starting a game.
           </div>
 
           <div id="gameWorkspace" class="hidden">
+            <div id="gameReadOnlyMessage" class="hidden"></div>
             <div class="notice">
               <strong>Draft:</strong> Save game or calculate settlement
               to save the game as a draft. Close game only when final; closing
@@ -864,15 +899,11 @@
 
             <h3>Players in this game</h3>
 
-            <div class="row">
-              <div>
-                <label for="gamePlayerSelect">Choose player from roster</label>
-                <select id="gamePlayerSelect">
-                  <option value="">Choose a player</option>
-                </select>
-              </div>
-
-              <button id="addGamePlayerButton">Add player</button>
+            <div id="addPlayerArea">
+              <label for="gamePlayerSelect">Add player from roster</label>
+              <select id="gamePlayerSelect">
+                <option value="">Choose a player</option>
+              </select>
             </div>
 
             <div id="gameEntries">
@@ -899,16 +930,10 @@
             <div id="gameBalanceMessage"></div>
 
             <div class="actions">
-              <button id="saveGameButton">Save game</button>
-              <button class="secondary" id="calculateButton">
-                Calculate settlement
-              </button>
-              <button class="danger" id="closeGameButton">
-                Close game
-              </button>
-              <button class="danger" id="clearGameButton">
-                Clear form
-              </button>
+              <button id="saveGameButton">Save</button>
+              <button class="secondary" id="calculateButton">Settle</button>
+              <button class="danger" id="closeGameButton">Close</button>
+              <button class="danger" id="clearGameButton">Clear</button>
             </div>
 
             <div id="settlements" style="margin-top: 16px;">
@@ -994,6 +1019,28 @@
             </span>
           </div>
 
+          <div class="two-columns" style="margin-bottom: 14px;">
+          <div>
+            <label for="leaderboardStartDate">From date</label>
+            <input id="leaderboardStartDate" type="date" />
+          </div>
+
+          <div>
+            <label for="leaderboardEndDate">To date</label>
+            <input id="leaderboardEndDate" type="date" />
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top: 0; margin-bottom: 16px;">
+          <button class="secondary" id="applyLeaderboardFilterButton">
+            Apply date filter
+          </button>
+
+          <button class="secondary" id="clearLeaderboardFilterButton">
+            All time
+          </button>
+        </div>
+
           <div id="leaderboard">
             <p class="empty">Select a group to view player rankings.</p>
           </div>
@@ -1063,6 +1110,11 @@
 
     let gameEntries = [];
     let currentGameId = null;
+    let activeGameId = null;
+    let activeGameOwnerId = null;
+    let gameSubscription = null;
+    let leaderboardStartDate = "";
+    let leaderboardEndDate = "";
 
     const money = value =>
       new Intl.NumberFormat("en-US", {
@@ -1416,7 +1468,7 @@
         updateGameTotals();
         renderHistory([]);
         renderLeaderboard([]);
-        updateSelectedGroupLabels();
+        updateSelectedGroupLabels();        
         return;
       }
 
@@ -1424,6 +1476,7 @@
       loadDraft();
       await loadHistory();
       await loadLeaderboard();
+      await loadCurrentLiveGame();
       updateSelectedGroupLabels();
     }
 
@@ -1582,8 +1635,6 @@
       `;
 
       select.disabled = !selectedGroupId || availablePlayers.length === 0;
-      document.getElementById("addGamePlayerButton").disabled =
-        !selectedGroupId || availablePlayers.length === 0;
     }
 
     function addGamePlayer() {
@@ -1615,7 +1666,8 @@
     }
 
     function renderGameEntries() {
-      const container = document.getElementById("gameEntries");
+        const container = document.getElementById("gameEntries");
+        const editable = canEditActiveGame();
 
       if (gameEntries.length === 0) {
         container.innerHTML = `
@@ -1629,7 +1681,7 @@
           ${gameEntries.map(entry => {
             const isEditing = entry.isEditing === true;
 
-            if (isEditing) {
+            if (isEditing && editable) {
               return `
                 <div class="compact-game-row editing">
                   <strong class="compact-player-name">
@@ -1700,25 +1752,33 @@
                 </span>
 
                 <div class="compact-actions">
-                  <button
-                    type="button"
-                    class="compact-icon-button edit-icon"
-                    title="Edit amounts"
-                    aria-label="Edit ${escapeHtml(entry.name)}"
-                    data-edit-entry="${entry.playerId}"
-                  >
-                    ✎
-                  </button>
+                  ${
+                    editable
+                      ? `
+                        <button
+                          type="button"
+                          class="compact-icon-button edit-icon"
+                          title="Edit amounts"
+                          aria-label="Edit ${escapeHtml(entry.name)}"
+                          data-edit-entry="${entry.playerId}"
+                        >
+                          ✎
+                        </button>
 
-                  <button
-                    type="button"
-                    class="compact-icon-button remove-icon"
-                    title="Remove player"
-                    aria-label="Remove ${escapeHtml(entry.name)}"
-                    data-remove-entry="${entry.playerId}"
-                  >
-                    ×
-                  </button>
+                        <button
+                          type="button"
+                          class="compact-icon-button remove-icon"
+                          title="Remove player"
+                          aria-label="Remove ${escapeHtml(entry.name)}"
+                          data-remove-entry="${entry.playerId}"
+                        >
+                          ×
+                        </button>
+                      `
+                      : `
+                        <span class="viewer-lock" title="View only">◉</span>
+                      `
+                  }
                 </div>
               </div>
             `;
@@ -2106,6 +2166,7 @@
 
       if (!closeGame) {
         saveDraft();
+        await loadCurrentLiveGame();
         return gameId;
       }
 
@@ -2154,6 +2215,8 @@
 
       clearDraft();
       resetGameForm();
+
+      
 
       alert(
         "Game closed successfully.\n\n" +
@@ -2265,6 +2328,7 @@
               type="button"
               class="history-game-button"
               data-history-game="${game.id}"
+              data-open-game="${game.id}"
               aria-expanded="false"
             >
               <span>
@@ -2308,25 +2372,107 @@
         return;
       }
 
-      const { data, error } = await supabase
-        .from("group_leaderboard")
-        .select("*")
+      let query = supabase
+        .from("games")
+        .select(`
+          id,
+          played_at,
+          game_entries (
+            buyin,
+            cashout,
+            group_player_id,
+            group_players (
+              id,
+              name
+            )
+          )
+        `)
         .eq("group_id", selectedGroupId)
-        .order("profit_rank", { ascending: true })
-        .order("player_name", { ascending: true });
+        .eq("status", "completed")
+        .order("played_at", { ascending: false });
+
+      if (leaderboardStartDate) {
+        query = query.gte(
+          "played_at",
+          `${leaderboardStartDate}T00:00:00`
+        );
+      }
+
+      if (leaderboardEndDate) {
+        query = query.lte(
+          "played_at",
+          `${leaderboardEndDate}T23:59:59`
+        );
+      }
+
+      const { data: games, error } = await query;
 
       if (error) {
         console.error(error);
+
         document.getElementById("leaderboard").innerHTML = `
           <p class="empty">Could not load leaderboard.</p>
         `;
         return;
       }
 
-      renderLeaderboard(data || []);
+      const totalsByPlayer = new Map();
+
+      (games || []).forEach(game => {
+        (game.game_entries || []).forEach(entry => {
+          const playerId = entry.group_player_id;
+          const playerName = entry.group_players?.name || "Unknown player";
+          const buyin = Number(entry.buyin || 0);
+          const cashout = Number(entry.cashout || 0);
+
+          if (!totalsByPlayer.has(playerId)) {
+            totalsByPlayer.set(playerId, {
+              player_id: playerId,
+              player_name: playerName,
+              games_played: 0,
+              total_buyins: 0,
+              total_cashouts: 0,
+              net_result: 0
+            });
+          }
+
+          const player = totalsByPlayer.get(playerId);
+
+          player.games_played += 1;
+          player.total_buyins += buyin;
+          player.total_cashouts += cashout;
+          player.net_result += cashout - buyin;
+        });
+      });
+
+      const players = Array.from(totalsByPlayer.values())
+        .sort((a, b) => {
+          if (b.net_result !== a.net_result) {
+            return b.net_result - a.net_result;
+          }
+
+          return a.player_name.localeCompare(b.player_name);
+        })
+        .map((player, index, allPlayers) => {
+          const previous = allPlayers[index - 1];
+
+          const profitRank =
+            index === 0 ||
+            previous.net_result !== player.net_result
+              ? index + 1
+              : previous.profit_rank;
+
+          return {
+            ...player,
+            profit_rank: profitRank
+          };
+        });
+
+      renderLeaderboard(players);
     }
 
     function renderLeaderboard(players) {
+      document.querySelector("#leaderboardPanel .subtitle").textContent = `Net-profit rankings for ${leaderboardPeriodLabel()} in the selected group.`;
       const container = document.getElementById("leaderboard");
 
       if (!selectedGroupId) {
@@ -2411,6 +2557,241 @@
       saveDraft();
     }
 
+    function canEditActiveGame() {
+  if (!activeGameId) return true;
+
+  return (
+    currentUser &&
+    (
+      activeGameOwnerId === currentUser.id ||
+      isGroupAdmin()
+    )
+  );
+}
+
+async function loadActiveGame(gameId) {
+  const { data: game, error: gameError } = await supabase
+    .from("games")
+    .select(`
+      id,
+      group_id,
+      created_by,
+      name,
+      played_at,
+      status,
+      game_entries (
+        group_player_id,
+        buyin,
+        cashout,
+        group_players (
+          name
+        )
+      )
+    `)
+    .eq("id", gameId)
+    .single();
+
+  if (gameError) {
+    console.error(gameError);
+    alert(`Could not load game: ${gameError.message}`);
+    return;
+  }
+
+  activeGameId = game.id;
+  activeGameOwnerId = game.created_by;
+
+  document.getElementById("gameName").value = game.name;
+  document.getElementById("gameDate").value =
+    new Date(game.played_at).toISOString().slice(0, 10);
+
+  gameEntries = (game.game_entries || []).map(entry => ({
+    playerId: entry.group_player_id,
+    name: entry.group_players?.name || "Unknown player",
+    buyin: Number(entry.buyin),
+    cashout: Number(entry.cashout),
+    isEditing: false
+  }));
+
+  currentGameId = canEditActiveGame() ? game.id : null;
+
+  renderGameEntries();
+  renderGamePlayerOptions();
+  updateGameTotals();
+  updateGamePermissions(game.status);
+}
+
+function updateGamePermissions(status = "draft") {
+  const editable = canEditActiveGame();
+  const readOnlyMessage = document.getElementById("gameReadOnlyMessage");
+
+  document.getElementById("gameName").disabled = !editable;
+  document.getElementById("gameDate").disabled = !editable;
+  document.getElementById("gamePlayerSelect").disabled = !editable;
+
+  document.getElementById("saveGameButton").classList.toggle(
+    "hidden",
+    !editable
+  );
+
+  document.getElementById("calculateButton").classList.toggle(
+    "hidden",
+    !editable
+  );
+
+  document.getElementById("closeGameButton").classList.toggle(
+    "hidden",
+    !editable
+  );
+
+  document.getElementById("clearGameButton").classList.toggle(
+    "hidden",
+    !editable
+  );
+  document.getElementById("defaultBuyin").disabled = !editable;
+  document.getElementById("applyDefaultBuyinButton").classList.toggle(
+    "hidden",
+    !editable
+  );
+  document.getElementById("addPlayerArea").classList.toggle(
+    "hidden",
+    !editable
+  );
+
+  if (!editable) {
+    readOnlyMessage.classList.remove("hidden");
+    readOnlyMessage.innerHTML = `
+      <div class="notice">
+        <strong>Live view only.</strong>
+        The game host is entering buy-ins and cash-outs.
+        Your screen updates automatically when the host saves changes.
+      </div>
+    `;
+    return;
+  }
+
+  readOnlyMessage.classList.add("hidden");
+
+  if (status === "completed") {
+    readOnlyMessage.classList.remove("hidden");
+    readOnlyMessage.innerHTML = `
+      <div class="success">
+        This game is closed. Group history and leaderboard have been updated.
+      </div>
+    `;
+  }
+}
+
+  function subscribeToActiveGame(gameId) {
+    if (gameSubscription) {
+      supabase.removeChannel(gameSubscription);
+    }
+
+    gameSubscription = supabase
+      .channel(`poker-vault-game-${gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "game_entries",
+          filter: `game_id=eq.${gameId}`
+        },
+        async () => {
+          await loadActiveGame(gameId);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${gameId}`
+        },
+        async () => {
+          await loadActiveGame(gameId);
+          await loadHistory();
+          await loadLeaderboard();
+        }
+      )
+      .subscribe();
+  }
+
+  async function openGameForViewing(gameId) {
+    if (activeGameId === gameId && !canEditActiveGame()) {
+      return;
+    }
+
+    showPanel("gamePanel");
+
+    await loadActiveGame(gameId);
+    subscribeToActiveGame(gameId);
+  }
+
+  async function loadCurrentLiveGame() {
+    if (!selectedGroupId || !currentUser) return;
+
+    const { data: liveGame, error } = await supabase
+      .from("games")
+      .select("id, name, created_by, played_at, status")
+      .eq("group_id", selectedGroupId)
+      .eq("status", "draft")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Could not load live game:", error);
+      return;
+    }
+
+    const banner = document.getElementById("liveGameBanner");
+
+    if (!liveGame) {
+      banner.classList.add("hidden");
+      return;
+    }
+
+    const isOwner = liveGame.created_by === currentUser.id;
+    const isAdmin = isGroupAdmin();
+
+    /*
+      The host and admin keep the normal editing screen.
+      Other members automatically open the live game in read-only mode.
+    */
+    if (isOwner || isAdmin) {
+      banner.classList.add("hidden");
+      return;
+    }
+
+    banner.classList.remove("hidden");
+    banner.innerHTML = `
+      <div class="notice">
+        <strong>Live game in progress:</strong>
+        ${escapeHtml(liveGame.name)}<br>
+        You are viewing this game live. Only the host can edit it.
+      </div>
+    `;
+
+    await openGameForViewing(liveGame.id);
+  }
+
+  function leaderboardPeriodLabel() {
+  if (!leaderboardStartDate && !leaderboardEndDate) {
+    return "All completed games";
+  }
+
+  if (leaderboardStartDate && leaderboardEndDate) {
+    return `${leaderboardStartDate} through ${leaderboardEndDate}`;
+  }
+
+  if (leaderboardStartDate) {
+    return `From ${leaderboardStartDate}`;
+  }
+
+  return `Through ${leaderboardEndDate}`;
+}
+
     document.getElementById("signUpButton").addEventListener("click", signUp);
     document.getElementById("signInButton").addEventListener("click", signIn);
     document.getElementById("signOutButton").addEventListener("click", signOut);
@@ -2427,6 +2808,35 @@
           behavior: "smooth",
           block: "start"
         });
+    });
+
+    document.getElementById("applyLeaderboardFilterButton").addEventListener("click", async () => {
+      leaderboardStartDate =
+        document.getElementById("leaderboardStartDate").value;
+
+      leaderboardEndDate =
+        document.getElementById("leaderboardEndDate").value;
+
+      if (
+        leaderboardStartDate &&
+        leaderboardEndDate &&
+        leaderboardStartDate > leaderboardEndDate
+      ) {
+        alert("The From date must be before the To date.");
+        return;
+      }
+
+      await loadLeaderboard();
+    });
+
+  document.getElementById("clearLeaderboardFilterButton").addEventListener("click", async () => {
+      leaderboardStartDate = "";
+      leaderboardEndDate = "";
+
+      document.getElementById("leaderboardStartDate").value = "";
+      document.getElementById("leaderboardEndDate").value = "";
+
+      await loadLeaderboard();
     });
 
     document.getElementById("applyDefaultBuyinButton").addEventListener("click", applyDefaultBuyinToPlayers);
@@ -2486,34 +2896,38 @@
       }
     );
 
-    document.getElementById("addGamePlayerButton").addEventListener(
-      "click",
-      addGamePlayer
+   document.getElementById("gamePlayerSelect").addEventListener(
+      "change",
+      event => {
+        if (!event.target.value) return;
+
+        addGamePlayer();
+      }
     );
 
    
 
-document.getElementById("gameEntries").addEventListener("input", event => {
-  const input = event.target;
+    document.getElementById("gameEntries").addEventListener("input", event => {
+      const input = event.target;
 
-  if (!input.matches("input[data-entry-id][data-field]")) {
-    return;
-  }
+      if (!input.matches("input[data-entry-id][data-field]")) {
+        return;
+      }
 
-  const playerId = input.dataset.entryId;
-  const field = input.dataset.field;
+      const playerId = input.dataset.entryId;
+      const field = input.dataset.field;
 
-  const entry = gameEntries.find(
-    item => item.playerId === playerId
-  );
+      const entry = gameEntries.find(
+        item => item.playerId === playerId
+      );
 
-  if (!entry) return;
+      if (!entry) return;
 
-  entry[field] = toNumber(input.value);
+      entry[field] = toNumber(input.value);
 
-  updateGameTotals();
-  saveDraft();
-});
+      updateGameTotals();
+      saveDraft();
+    });
 
 document.getElementById("gameEntries").addEventListener("change", event => {
   const input = event.target;
@@ -2655,41 +3069,29 @@ document.getElementById("gameEntries").addEventListener("change", event => {
       }
     );
 
-    document.getElementById("clearGameButton").addEventListener(
-      "click",
-      clearGame
-    );
+    document.getElementById("clearGameButton").addEventListener("click",clearGame);
 
-    document.getElementById("copyButton").addEventListener(
-      "click",
-      copySettlement
-    );
+    document.getElementById("copyButton").addEventListener("click",copySettlement);
 
-    document.getElementById("gameHistory").addEventListener(
-      "click",
-      event => {
-        const button = event.target.closest("[data-history-game]");
+    document.getElementById("gameHistory").addEventListener("click", async event => {
+      const gameButton = event.target.closest("[data-history-game]");
 
-        if (!button) return;
+      if (!gameButton) return;
 
-        const gameId = button.dataset.historyGame;
-        const details = document.getElementById(
-          `history-details-${gameId}`
-        );
+      const gameId = gameButton.dataset.historyGame;
+      const details = document.getElementById(`history-details-${gameId}`);
+      const arrow = document.querySelector(
+        `[data-history-arrow="${gameId}"]`
+      );
 
-        const arrow = document.querySelector(
-          `[data-history-arrow="${gameId}"]`
-        );
+      if (!details || !arrow) return;
 
-        if (!details || !arrow) return;
+      const isHidden = details.classList.contains("hidden");
 
-        const hidden = details.classList.contains("hidden");
-
-        details.classList.toggle("hidden", !hidden);
-        button.setAttribute("aria-expanded", hidden ? "true" : "false");
-        arrow.textContent = hidden ? "Hide" : "Show";
-      }
-    );
+      details.classList.toggle("hidden", !isHidden);
+      gameButton.setAttribute("aria-expanded", isHidden ? "true" : "false");
+      arrow.textContent = isHidden ? "Hide" : "Show";
+    });
 
     supabase.auth.onAuthStateChange(() => {
       updateAuthUI();
