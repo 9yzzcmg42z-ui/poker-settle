@@ -1746,20 +1746,25 @@ button.compact-player-name:hover {
 
 
     function showToast(message, type = "") {
-      const region = document.getElementById("toastRegion");
+    const region = document.getElementById("toastRegion");
 
-      if (!region) return;
-
-      const toast = document.createElement("div");
-      toast.className = `toast ${type}`.trim();
-      toast.textContent = message;
-
-      region.appendChild(toast);
-
-      window.setTimeout(() => {
-        toast.remove();
-      }, 4200);
+    // Fallback means feedback still appears if the HTML container is absent.
+    if (!region) {
+      console[type === "error" ? "error" : "log"](message);
+      return;
     }
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`.trim();
+    toast.setAttribute("role", type === "error" ? "alert" : "status");
+    toast.textContent = message;
+
+    region.appendChild(toast);
+
+    window.setTimeout(() => {
+      toast.remove();
+    }, 4200);
+  }
 
     function setSaveStatus(message, type = "") {
       const element = document.getElementById("saveStatus");
@@ -1955,7 +1960,7 @@ button.compact-player-name:hover {
       const password = document.getElementById("password").value;
 
       if (!email || !password) {
-        alert("Enter an email and password.");
+        showToast("Enter an email and password.", "warning");
         return;
       }
 
@@ -1968,7 +1973,7 @@ button.compact-player-name:hover {
       });
 
       if (error) {
-        alert(error.message);
+        showToast(error.message, "error");
         return;
       }
 
@@ -2196,7 +2201,7 @@ button.compact-player-name:hover {
 
       if (error) {
         console.error(error);
-        alert(`Could not create group: ${error.message}`);
+        showToast(`Could not create group: ${error.message}`, "error");
         return;
       }
 
@@ -2210,7 +2215,7 @@ button.compact-player-name:hover {
         .add("hidden");
 
       await loadGroups();
-      alert("Group created and selected.");
+      showToast("Group created and selected.", "success");
     }
 
     async function joinGroup() {
@@ -4650,5 +4655,7 @@ function updateGameSetupVisibility() {
     renderGameEntries();
     updateGameTotals();
   </script>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>
