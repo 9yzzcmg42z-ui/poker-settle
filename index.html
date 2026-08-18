@@ -1076,6 +1076,28 @@ button.compact-player-name:hover {
   font-size: 1.05rem;
 }
 
+.buyin-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.buyin-remove-button {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border-radius: 7px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
   </style>
 </head>
 
@@ -1221,6 +1243,7 @@ button.compact-player-name:hover {
                   type="number"
                   min="0"
                   step="0.01"
+                  value="15"
                   placeholder="Example: 15"
                 />
               </div>
@@ -2209,11 +2232,32 @@ function renderGameEntries() {
                     ${
                       transactions.length
                         ? transactions
-                            .map(
-                              (transaction, index) =>
-                                `${index + 1}. ${money(transaction.amount)}`
-                            )
-                            .join("<br>")
+                          .map(
+                            (transaction, index) => `
+                              <div class="buyin-history-row">
+                                <span>
+                                  ${index + 1}. ${money(transaction.amount)}
+                                </span>
+
+                                ${
+                                  editable
+                                    ? `
+                                      <button
+                                        type="button"
+                                        class="buyin-remove-button"
+                                        title="Remove this buy-in"
+                                        aria-label="Remove buy-in ${money(transaction.amount)} for ${escapeHtml(entry.name)}"
+                                        data-remove-buyin="${transaction.id}"
+                                      >
+                                        ×
+                                      </button>
+                                    `
+                                    : ""
+                                }
+                              </div>
+                            `
+                          )
+                          .join("")
                         : "No buy-ins recorded yet."
                     }
                   </div>
@@ -2476,6 +2520,7 @@ function renderGameEntries() {
 
       document.getElementById("gameName").value = "Friday Night Poker";
       document.getElementById("gameDate").value = todayForInput();
+      document.getElementById("defaultBuyin").value = "15";
 
       renderGameEntries();
       renderGamePlayerOptions();
@@ -3573,7 +3618,7 @@ function updateGameSetupVisibility() {
       const removePlayerId = button.dataset.removeEntry;
       const addBuyinPlayerId = button.dataset.addBuyin;
       const buyinHistoryPlayerId = button.dataset.buyinHistory;
-      
+      const removeBuyinId = button.dataset.removeBuyin;
 
       if (buyinHistoryPlayerId) {
         gameEntries = gameEntries.map(entry =>
@@ -3591,6 +3636,35 @@ function updateGameSetupVisibility() {
 
       if (addBuyinPlayerId) {
         await addBuyinTransaction(addBuyinPlayerId);
+        return;
+      }
+
+      if (removeBuyinId) {
+        const transaction = gameEntries
+          .flatMap(entry => entry.buyinTransactions || [])
+          .find(item => item.id === removeBuyinId);
+
+        if (!transaction) return;
+
+        const confirmed = confirm(
+          `Remove this buy-in of ${money(transaction.amount)}?`
+        );
+
+        if (!confirmed) return;
+
+        const { error } = await supabase
+          .from("game_buyin_transactions")
+          .delete()
+          .eq("id", removeBuyinId);
+
+        if (error) {
+          console.error(error);
+          alert(`Could not remove buy-in: ${error.message}`);
+          return;
+        }
+
+        await loadBuyinTransactions(currentGameId);
+        await saveGame(false);
         return;
       }
 
