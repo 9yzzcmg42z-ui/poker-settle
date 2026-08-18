@@ -99,6 +99,12 @@
     button.danger {
       background: var(--red-soft);
       color: var(--red);
+      border: 1px solid #e7bdb3;
+    }
+    #clearGameButton {
+      background: var(--surface-2);
+      color: var(--red);
+      border: 1px solid #e7bdb3;
     }
 
     button.small {
@@ -709,6 +715,7 @@
 
     .compact-game-row.editing {
       background: var(--surface-2);
+      grid-template-columns: minmax(48px, 1fr) 70px 70px 70px 64px;
     }
 
     .compact-player-name {
@@ -829,6 +836,10 @@
       width: 27px;
       height: 27px;
     }
+    .compact-game-row.editing {
+    grid-template-columns: minmax(42px, 1fr) 60px 60px 60px 58px;
+    gap: 3px;
+  }
   }
 
   .compact-actions {
@@ -929,6 +940,140 @@ button.game-setup-toggle {
 
 button.game-setup-toggle:hover {
   background: var(--green-soft);
+}
+
+.buyin-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+}
+
+.buyin-history-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  border-radius: 6px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.buyin-history {
+  grid-column: 1 / -1;
+  margin: -3px 0 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.buyin-history strong {
+  color: var(--ink);
+}
+
+button.compact-player-name {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.compact-player-name:hover {
+  color: var(--green);
+  filter: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.compact-game-row.editing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 10px;
+}
+
+.editing-player-name {
+  min-width: 0;
+  margin: 0;
+  padding-top: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editing-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.editing-fields {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.editing-fields .compact-edit-input {
+  min-width: 0;
+}
+
+.editing-fields .compact-edit-input input {
+  width: 100%;
+  padding: 10px 9px;
+}
+
+.editing-history {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .editing-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.current-buyin {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #cfe0d3;
+  border-radius: 10px;
+  background: var(--green-soft);
+}
+
+.current-buyin span {
+  color: var(--green-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.current-buyin strong {
+  color: var(--green);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
 }
 
   </style>
@@ -1668,6 +1813,9 @@ button.game-setup-toggle:hover {
     }
 
     async function groupChanged() {
+
+      resetActiveGameState();
+
       if (!selectedGroupId) {
         roster = [];
         gameEntries = [];
@@ -1848,7 +1996,7 @@ button.game-setup-toggle:hover {
       select.disabled = !selectedGroupId || availablePlayers.length === 0;
     }
 
-    function addGamePlayer() {
+    async function addGamePlayer() {
       const select = document.getElementById("gamePlayerSelect");
       const playerId = select.value;
       const player = roster.find(item => item.id === playerId);
@@ -1862,144 +2010,222 @@ button.game-setup-toggle:hover {
         document.getElementById("defaultBuyin").value
       );
 
-      gameEntries.push({
-        playerId: player.id,
-        name: player.name,
-        buyin: defaultBuyin || "",
-        cashout: "",
-        isEditing: false
-      });
+     gameEntries.push({
+      playerId: player.id,
+      name: player.name,
+      buyin: defaultBuyin || "",
+      buyinTransactions: [],
+      showBuyinHistory: false,
+      cashout: "",
+      isEditing: false
+    });
 
-      renderGameEntries();
+   
+      
+     renderGameEntries();
       renderGamePlayerOptions();
       updateGameTotals();
-      saveDraft();
+        saveDraft();
+      const gameId = await saveGame(false);
+
+      if (gameId && defaultBuyin > 0) {
+        const { error } = await supabase
+          .from("game_buyin_transactions")
+          .insert({
+            game_id: gameId,
+            group_player_id: player.id,
+            amount: defaultBuyin
+          });
+
+        if (error) {
+          console.error(error);
+          alert(`Could not record initial buy-in: ${error.message}`);
+          return;
+        }
+
+        await loadBuyinTransactions(gameId);
+      }
+
       if (gameEntries.length === 1) {
         setGameSetupCollapsed(true);
       }
     }
 
-    function renderGameEntries() {
-        const container = document.getElementById("gameEntries");
-        const editable = canEditActiveGame();
+function renderGameEntries() {
+  const container = document.getElementById("gameEntries");
+  const editable = canEditActiveGame();
 
-      if (gameEntries.length === 0) {
-        container.innerHTML = `
-          <p class="empty">Choose players from the group roster.</p>
-        `;
-        return;
-      }
+  if (gameEntries.length === 0) {
+    container.innerHTML = `
+      <p class="empty">Choose players from the group roster.</p>
+    `;
+    return;
+  }
 
-      container.innerHTML = `
-        <div class="compact-game-list">
-          ${gameEntries.map(entry => {
-            const isEditing = entry.isEditing === true;
+  container.innerHTML = `
+    <div class="compact-game-list">
+      ${gameEntries.map(entry => {
+        const transactions = entry.buyinTransactions || [];
+        const isEditing = entry.isEditing === true;
 
-            if (isEditing && editable) {
-              return `
-                <div class="compact-game-row editing">
-                  <strong class="compact-player-name">
-                    ${escapeHtml(entry.name)}
-                  </strong>
+        if (isEditing && editable) {
+          return `
+            <div class="compact-game-row editing">
+              <strong class="editing-player-name">
+                ${escapeHtml(entry.name)}
+              </strong>
+
+              <div class="editing-actions">
+                <button
+                  type="button"
+                  class="compact-icon-button done-icon"
+                  title="Save changes"
+                  aria-label="Save changes for ${escapeHtml(entry.name)}"
+                  data-done-entry="${entry.playerId}"
+                >
+                  ✓
+                </button>
+
+                <button
+                  type="button"
+                  class="compact-icon-button remove-icon"
+                  title="Remove player from game"
+                  aria-label="Remove ${escapeHtml(entry.name)} from this game"
+                  data-remove-entry="${entry.playerId}"
+                >
+                  ×
+                </button>
+              </div>
+
+                <div class="editing-fields">
+                  <div class="current-buyin">
+                    <span>Current total buy-in</span>
+                    <strong>${money(entry.buyin)}</strong>
+                  </div>
 
                   <div class="compact-edit-input">
-                    <label>Buy-in</label>
+                    <label>Add buy-in</label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
-                      value="${entry.buyin ?? ""}"
+                      inputmode="decimal"
+                      placeholder="$$"
+                      value="${entry.pendingBuyin ?? ""}"
                       data-entry-id="${entry.playerId}"
-                      data-field="buyin"
+                      data-field="newBuyin"
                     />
-                  </div>
+                  </div>s
 
-                  <div class="compact-edit-input">
-                    <label>Cash-out</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value="${entry.cashout ?? ""}"
-                      data-entry-id="${entry.playerId}"
-                      data-field="cashout"
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    class="compact-icon-button done-icon"
-                    title="Done editing"
-                    aria-label="Done editing ${escapeHtml(entry.name)}"
-                    data-done-entry="${entry.playerId}"
-                  >
-                    ✓
-                  </button>
-
-                  <button
-                    type="button"
-                    class="compact-icon-button remove-icon"
-                    title="Remove player"
-                    aria-label="Remove ${escapeHtml(entry.name)}"
-                    data-remove-entry="${entry.playerId}"
-                  >
-                    ×
-                  </button>
-                </div>
-              `;
-            }
-
-            return `
-              <div class="compact-game-row">
-                <strong class="compact-player-name">
-                  ${escapeHtml(entry.name)}
-                </strong>
-
-                <span class="compact-money buyin-money">
-                  <small>Buy-in</small>
-                  ${money(entry.buyin)}
-                </span>
-
-                <span class="compact-money cashout-money">
-                  <small>Cash-out</small>
-                  ${money(entry.cashout)}
-                </span>
-
-                <div class="compact-actions">
-                  ${
-                    editable
-                      ? `
-                        <button
-                          type="button"
-                          class="compact-icon-button edit-icon"
-                          title="Edit amounts"
-                          aria-label="Edit ${escapeHtml(entry.name)}"
-                          data-edit-entry="${entry.playerId}"
-                        >
-                          ✎
-                        </button>
-
-                        <button
-                          type="button"
-                          class="compact-icon-button remove-icon"
-                          title="Remove player"
-                          aria-label="Remove ${escapeHtml(entry.name)}"
-                          data-remove-entry="${entry.playerId}"
-                        >
-                          ×
-                        </button>
-                      `
-                      : `
-                        <span class="viewer-lock" title="View only">◉</span>
-                      `
-                  }
+                <div class="compact-edit-input">
+                  <label>Cash-out</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputmode="decimal"
+                    value="${entry.cashout ?? ""}"
+                    data-entry-id="${entry.playerId}"
+                    data-field="cashout"
+                  />
                 </div>
               </div>
-            `;
-          }).join("")}
-        </div>
-      `;
-    }
+
+              <div class="buyin-history editing-history">
+                <strong>Buy-in history</strong><br>
+                ${
+                  transactions.length
+                    ? transactions
+                        .map(
+                          (transaction, index) =>
+                            `${index + 1}. ${money(transaction.amount)}`
+                        )
+                        .join("<br>")
+                    : "No buy-ins recorded yet."
+                }
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="compact-game-row">
+            <button
+              type="button"
+              class="compact-player-name"
+              title="Show buy-in history"
+              aria-label="Show buy-in history for ${escapeHtml(entry.name)}"
+              aria-expanded="${entry.showBuyinHistory ? "true" : "false"}"
+              data-buyin-history="${entry.playerId}"
+            >
+              ${escapeHtml(entry.name)}
+            </button>
+
+            <span class="compact-money buyin-money">
+              <small>Buy-in</small>
+              ${money(entry.buyin)}
+            </span>
+
+            <span class="compact-money cashout-money">
+              <small>Cash-out</small>
+              ${money(entry.cashout)}
+            </span>
+
+            <div class="compact-actions">
+              ${
+                editable
+                  ? `
+                    <button
+                      type="button"
+                      class="compact-icon-button edit-icon"
+                      title="Edit player amounts"
+                      aria-label="Edit ${escapeHtml(entry.name)}"
+                      data-edit-entry="${entry.playerId}"
+                    >
+                      ✎
+                    </button>
+
+                    <button
+                      type="button"
+                      class="compact-icon-button remove-icon"
+                      title="Remove player from game"
+                      aria-label="Remove ${escapeHtml(entry.name)} from this game"
+                      data-remove-entry="${entry.playerId}"
+                    >
+                      ×
+                    </button>
+                  `
+                  : `
+                    <span class="viewer-lock" title="View only">◉</span>
+                  `
+              }
+            </div>
+
+            ${
+              entry.showBuyinHistory
+                ? `
+                  <div class="buyin-history">
+                    <strong>Buy-in history</strong><br>
+                    ${
+                      transactions.length
+                        ? transactions
+                            .map(
+                              (transaction, index) =>
+                                `${index + 1}. ${money(transaction.amount)}`
+                            )
+                            .join("<br>")
+                        : "No buy-ins recorded yet."
+                    }
+                  </div>
+                `
+                : ""
+            }
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
 
     function updateGameTotals() {
       const totalBuyins = gameEntries.reduce(
@@ -2180,6 +2406,23 @@ button.game-setup-toggle:hover {
 
       copySettlementActions.classList.remove("hidden");
     }
+    function resetActiveGameState() {
+      if (gameSubscription) {
+        supabase.removeChannel(gameSubscription);
+        gameSubscription = null;
+      }
+
+      activeGameId = null;
+      activeGameOwnerId = null;
+
+      document.getElementById("liveGameBanner").classList.add("hidden");
+
+      clearDraft ? null : null; // no-op placeholder, see note below
+      resetGameForm();
+      updateGamePermissions("draft");
+    }
+
+   
 
     function saveDraft() {
       if (!selectedGroupId) return;
@@ -2428,6 +2671,18 @@ button.game-setup-toggle:hover {
           alert(`Could not save settlements: ${settlementError.message}`);
           return null;
         }
+      }
+
+      const { error: buyinCleanupError } = await supabase
+        .from("game_buyin_transactions")
+        .delete()
+        .eq("game_id", gameId);
+
+      if (buyinCleanupError) {
+        console.error(buyinCleanupError);
+        alert(
+          "Game closed, but temporary buy-in transaction details could not be removed."
+        );
       }
 
       showSettlement();
@@ -2753,10 +3008,15 @@ button.game-setup-toggle:hover {
       }
     }
 
-    function applyDefaultBuyinToPlayers() {
+    async function applyDefaultBuyinToPlayers() {
       const defaultBuyin = toNumber(
         document.getElementById("defaultBuyin").value
       );
+
+      if (defaultBuyin <= 0) {
+        alert("Enter a default buy-in greater than $0.");
+        return;
+      }
 
       if (gameEntries.length === 0) {
         alert("Add players before applying a default buy-in.");
@@ -2764,32 +3024,130 @@ button.game-setup-toggle:hover {
       }
 
       const confirmed = confirm(
-        `Set the buy-in to ${money(defaultBuyin)} for all current players?`
+        `Add ${money(defaultBuyin)} as a buy-in for every current player?`
       );
 
       if (!confirmed) return;
 
-      gameEntries = gameEntries.map(entry => ({
-        ...entry,
-        buyin: defaultBuyin
+      const gameId = await saveGame(false);
+
+      if (!gameId) return;
+
+      const rows = gameEntries.map(entry => ({
+        game_id: gameId,
+        group_player_id: entry.playerId,
+        amount: defaultBuyin
       }));
 
-      renderGameEntries();
-      updateGameTotals();
-      saveDraft();
+      const { error } = await supabase
+        .from("game_buyin_transactions")
+        .insert(rows);
+
+      if (error) {
+        console.error(error);
+        alert(`Could not add default buy-ins: ${error.message}`);
+        return;
+      }
+
+      await loadBuyinTransactions(gameId);
+      await saveGame(false);
     }
 
     function canEditActiveGame() {
-  if (!activeGameId) return true;
+      if (!activeGameId) return true;
 
-  return (
-    currentUser &&
-    (
-      activeGameOwnerId === currentUser.id ||
-      isGroupAdmin()
-    )
-  );
-}
+      return (
+        currentUser &&
+        (
+          activeGameOwnerId === currentUser.id ||
+          isGroupAdmin()
+        )
+      );
+    }
+
+    async function loadBuyinTransactions(gameId) {
+      const { data, error } = await supabase
+        .from("game_buyin_transactions")
+        .select("id, group_player_id, amount, created_at")
+        .eq("game_id", gameId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Could not load buy-in transactions:", error);
+        return;
+      }
+
+      const byPlayer = new Map();
+
+      for (const transaction of data || []) {
+        const transactions = byPlayer.get(transaction.group_player_id) || [];
+
+        transactions.push({
+          id: transaction.id,
+          amount: Number(transaction.amount),
+          createdAt: transaction.created_at
+        });
+
+        byPlayer.set(transaction.group_player_id, transactions);
+      }
+
+      gameEntries = gameEntries.map(entry => {
+      const buyinTransactions = byPlayer.get(entry.playerId) || [];
+
+      return {
+        ...entry,
+        buyinTransactions,
+          buyin: buyinTransactions.reduce(
+            (total, transaction) => total + Number(transaction.amount),
+            0
+          ),
+          showBuyinHistory: entry.showBuyinHistory || false
+        };
+      });
+
+      renderGameEntries();
+      updateGameTotals();
+    }
+
+    async function addBuyinTransaction(playerId) {
+      if (!currentGameId) {
+        const gameId = await saveGame(false);
+
+        if (!gameId) return;
+      }
+
+      const entry = gameEntries.find(item => item.playerId === playerId);
+
+      if (!entry) return;
+
+      const rawAmount = prompt(`Additional buy-in for ${entry.name}:`);
+
+      if (rawAmount === null) return;
+
+      const amount = Number.parseFloat(rawAmount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Enter a buy-in amount greater than $0.");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("game_buyin_transactions")
+        .insert({
+          game_id: currentGameId,
+          group_player_id: playerId,
+          amount
+        });
+
+      if (error) {
+        console.error(error);
+        alert(`Could not add buy-in: ${error.message}`);
+        return;
+      }
+
+      await loadBuyinTransactions(currentGameId);
+      await saveGame(false);
+    }
 
 async function loadActiveGame(gameId) {
   const { data: game, error: gameError } = await supabase
@@ -2829,13 +3187,17 @@ async function loadActiveGame(gameId) {
   gameEntries = (game.game_entries || []).map(entry => ({
     playerId: entry.group_player_id,
     name: entry.group_players?.name || "Unknown player",
-    buyin: Number(entry.buyin),
-    cashout: Number(entry.cashout),
+    buyin: Number(entry.buyin || 0),
+    buyinTransactions: [],
+    showBuyinHistory: false,
+    cashout: Number(entry.cashout || 0),
     isEditing: false
   }));
 
-  currentGameId = canEditActiveGame() ? game.id : null;
+  await loadBuyinTransactions(gameId);
 
+  currentGameId = canEditActiveGame() ? game.id : null;
+  await loadBuyinTransactions(gameId);
   renderGameEntries();
   renderGamePlayerOptions();
   updateGameTotals();
@@ -2913,6 +3275,18 @@ function updateGamePermissions(status = "draft") {
         },
         async () => {
           await loadActiveGame(gameId);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "game_buyin_transactions",
+          filter: `game_id=eq.${gameId}`
+        },
+        async () => {
+          await loadBuyinTransactions(gameId);
         }
       )
       .on(
@@ -3147,44 +3521,49 @@ function updateGameSetupVisibility() {
         return;
       }
 
-      const playerId = input.dataset.entryId;
-      const field = input.dataset.field;
-
       const entry = gameEntries.find(
-        item => item.playerId === playerId
+        item => item.playerId === input.dataset.entryId
       );
 
       if (!entry) return;
 
-      entry[field] = toNumber(input.value);
+      const field = input.dataset.field;
 
-      updateGameTotals();
-      saveDraft();
+      if (field === "newBuyin") {
+        entry.pendingBuyin = input.value;
+        return;
+      }
+
+      if (field === "cashout") {
+        entry.cashout = input.value;
+        updateGameTotals();
+        saveDraft();
+      }
     });
 
-document.getElementById("gameEntries").addEventListener("change", event => {
-  const input = event.target;
+// document.getElementById("gameEntries").addEventListener("change", event => {
+//   const input = event.target;
 
-  if (!input.matches("input[data-entry-id][data-field]")) {
-    return;
-  }
+//   if (!input.matches("input[data-entry-id][data-field]")) {
+//     return;
+//   }
 
-  const playerId = input.dataset.entryId;
-  const field = input.dataset.field;
+//   const playerId = input.dataset.entryId;
+//   const field = input.dataset.field;
 
-  const entry = gameEntries.find(
-    item => item.playerId === playerId
-  );
+//   const entry = gameEntries.find(
+//     item => item.playerId === playerId
+//   );
 
-  if (!entry) return;
+//   if (!entry) return;
 
-  entry[field] = toNumber(input.value);
+//   entry[field] = toNumber(input.value);
 
-  updateGameTotals();
-  saveDraft();
-});
+//   updateGameTotals();
+//   saveDraft();
+// });
 
-    document.getElementById("gameEntries").addEventListener("click", event => {
+    document.getElementById("gameEntries").addEventListener("click", async event => {
       const button = event.target.closest("button");
 
       if (!button) return;
@@ -3192,6 +3571,28 @@ document.getElementById("gameEntries").addEventListener("change", event => {
       const editPlayerId = button.dataset.editEntry;
       const donePlayerId = button.dataset.doneEntry;
       const removePlayerId = button.dataset.removeEntry;
+      const addBuyinPlayerId = button.dataset.addBuyin;
+      const buyinHistoryPlayerId = button.dataset.buyinHistory;
+      
+
+      if (buyinHistoryPlayerId) {
+        gameEntries = gameEntries.map(entry =>
+          entry.playerId === buyinHistoryPlayerId
+            ? {
+                ...entry,
+                showBuyinHistory: !entry.showBuyinHistory
+              }
+            : entry
+        );
+
+        renderGameEntries();
+        return;
+      }
+
+      if (addBuyinPlayerId) {
+        await addBuyinTransaction(addBuyinPlayerId);
+        return;
+      }
 
       if (editPlayerId) {
         gameEntries = gameEntries.map(entry => ({
@@ -3204,19 +3605,75 @@ document.getElementById("gameEntries").addEventListener("change", event => {
       }
 
       if (donePlayerId) {
-        gameEntries = gameEntries.map(entry => ({
-          ...entry,
+        const entry = gameEntries.find(
+          item => item.playerId === donePlayerId
+        );
+
+        if (!entry) return;
+
+        const rawBuyin = String(entry.pendingBuyin ?? "").trim();
+        const amount = Number.parseFloat(rawBuyin);
+
+        if (
+          rawBuyin !== "" &&
+          (!Number.isFinite(amount) || amount <= 0)
+        ) {
+          alert("Enter a buy-in amount greater than $0.");
+          return;
+        }
+
+        if (Number.isFinite(amount) && amount > 0) {
+          if (!currentGameId) {
+            const gameId = await saveGame(false);
+
+            if (!gameId) return;
+          }
+
+          const { error } = await supabase
+            .from("game_buyin_transactions")
+            .insert({
+              game_id: currentGameId,
+              group_player_id: donePlayerId,
+              amount
+            });
+
+          if (error) {
+            console.error(error);
+            alert(`Could not save buy-in: ${error.message}`);
+            return;
+          }
+
+          await loadBuyinTransactions(currentGameId);
+        }
+
+        gameEntries = gameEntries.map(item => ({
+          ...item,
+          pendingBuyin: "",
           isEditing: false
         }));
 
+        await saveGame(false);
+        renderGameEntries();
         updateGameTotals();
         saveDraft();
-        renderGameEntries();
-
         return;
       }
 
       if (removePlayerId) {
+        if (currentGameId) {
+          const { error } = await supabase
+            .from("game_buyin_transactions")
+            .delete()
+            .eq("game_id", currentGameId)
+            .eq("group_player_id", removePlayerId);
+
+          if (error) {
+            console.error(error);
+            alert(`Could not remove buy-in transactions: ${error.message}`);
+            return;
+          }
+        }
+
         gameEntries = gameEntries.filter(
           entry => entry.playerId !== removePlayerId
         );
@@ -3225,6 +3682,9 @@ document.getElementById("gameEntries").addEventListener("change", event => {
         renderGamePlayerOptions();
         updateGameTotals();
         saveDraft();
+        if (currentGameId) {
+          await saveGame(false);
+        }
       }
     });
 
