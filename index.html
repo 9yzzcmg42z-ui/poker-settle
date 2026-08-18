@@ -480,6 +480,28 @@
       line-height: 1.5;
       background: var(--surface-2);
     }
+    .owned-group-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+    }
+
+    .owned-group-row strong,
+    .owned-group-row span {
+      display: block;
+    }
+
+    .owned-group-row span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
 
     .positive {
       color: #1e7a4c;
@@ -1098,6 +1120,196 @@ button.compact-player-name:hover {
   font-weight: 500;
 }
 
+/* App feedback and game state */
+.toast-region {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 100;
+  display: grid;
+  width: min(380px, calc(100% - 36px));
+  gap: 9px;
+}
+
+.toast {
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  line-height: 1.4;
+  animation: toast-in 0.18s ease-out;
+}
+
+.toast.success {
+  border-color: #b8d7c0;
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.toast.error {
+  border-color: #e7bdb3;
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.toast.warning {
+  border-color: #e7d39d;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.game-meta-pill {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.save-status {
+  min-height: 20px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.save-status.saving {
+  color: var(--warning-text);
+}
+
+.save-status.saved {
+  color: var(--green);
+}
+
+.save-status.error {
+  color: var(--red);
+}
+
+.field-error {
+  min-height: 18px;
+  margin: 5px 0 0;
+  color: var(--red);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.input-invalid {
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 3px rgba(179, 64, 42, 0.12) !important;
+}
+
+.player-search-wrap {
+  margin: 14px 0 10px;
+}
+
+.player-search-wrap input {
+  background: var(--surface-2);
+}
+
+.owned-group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.group-settings-card {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.danger-zone {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #e7bdb3;
+  border-radius: 12px;
+  background: var(--red-soft);
+}
+
+.danger-zone h3 {
+  margin: 0 0 6px;
+  color: var(--red);
+}
+
+.danger-zone p {
+  margin: 0 0 12px;
+  color: var(--red);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.leaderboard-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.leaderboard-insight {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-2);
+}
+
+.leaderboard-insight span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.leaderboard-insight strong {
+  color: var(--green);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 560px) {
+  .leaderboard-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .owned-group-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .owned-group-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .owned-group-actions button {
+    flex: 1;
+  }
+}
+
   </style>
 </head>
 
@@ -1209,6 +1421,16 @@ button.compact-player-name:hover {
               updates group history and leaderboard.
             </div>
 
+            <div class="game-meta-row" id="gameMetaRow">
+              <span class="game-meta-pill" id="gameLiveStatus">
+                New draft
+              </span>
+
+              <span class="game-meta-pill" id="gameLastSaved">
+                Not saved yet
+              </span>
+            </div>
+
             <div class="game-setup-header">
               <h3>Game setup</h3>
 
@@ -1246,6 +1468,7 @@ button.compact-player-name:hover {
                   value="15"
                   placeholder="Example: 15"
                 />
+                 <p class="field-error" id="defaultBuyinError"></p>
               </div>
 
               <button
@@ -1257,12 +1480,29 @@ button.compact-player-name:hover {
               </button>
             </div>           
           </div>
-           <div id="addPlayerArea" style="margin-top: 14px;">
-              <label for="gamePlayerSelect">Add player from roster</label>
-              <select id="gamePlayerSelect">
-                <option value="">Choose a player</option>
-              </select>
+           <!-- <div id="addPlayerArea" style="margin-top: 14px;">
+            <label for="gamePlayerSearch">Find and add player</label>
+
+            <div class="player-search-wrap">
+              <input
+                id="gamePlayerSearch"
+                type="search"
+                autocomplete="off"
+                placeholder="Search roster…"
+              />
             </div>
+
+            <select id="gamePlayerSelect">
+              <option value="">Choose a player</option>
+            </select>
+          </div> -->
+
+          <div id="addPlayerArea" style="margin-top: 14px;">
+            <label for="gamePlayerSelect">Add player from roster</label>
+            <select id="gamePlayerSelect">
+              <option value="">Choose a player</option>
+            </select>
+          </div>
 
             <h3>Players in this game</h3>          
             <div id="gameEntries">
@@ -1294,6 +1534,8 @@ button.compact-player-name:hover {
               <button class="danger" id="closeGameButton">Close</button>
               <button class="danger" id="clearGameButton">Clear</button>
             </div>
+
+            <p id="saveStatus" class="save-status" aria-live="polite"></p>
 
             <div id="settlements" style="margin-top: 16px;">
               <p class="empty">
@@ -1447,8 +1689,16 @@ button.compact-player-name:hover {
         </div>
       </div>
 
+      <h3>Your groups</h3>
+
+      <div id="ownedGroupsList">
+        <p class="empty">Loading your groups…</p>
+      </div>
+
       <p id="groupMessage" class="empty" style="margin-top: 16px;"></p>
     </section>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
   </main>
 
   <script type="module">
@@ -1474,6 +1724,8 @@ button.compact-player-name:hover {
     let gameSubscription = null;
     let leaderboardStartDate = "";
     let leaderboardEndDate = "";
+    let draftDirty = false;
+    let lastSavedAt = null;    
 
     const money = value =>
       new Intl.NumberFormat("en-US", {
@@ -1491,6 +1743,79 @@ button.compact-player-name:hover {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+
+
+    function showToast(message, type = "") {
+      const region = document.getElementById("toastRegion");
+
+      if (!region) return;
+
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`.trim();
+      toast.textContent = message;
+
+      region.appendChild(toast);
+
+      window.setTimeout(() => {
+        toast.remove();
+      }, 4200);
+    }
+
+    function setSaveStatus(message, type = "") {
+      const element = document.getElementById("saveStatus");
+
+      // The app works even if the optional status UI is not present.
+      if (!element) return;
+
+      element.textContent = message;
+      element.className = `save-status ${type}`.trim();
+    }
+
+    function markDraftDirty() {
+      if (!canEditActiveGame()) return;
+
+      draftDirty = true;
+      setSaveStatus("Unsaved changes", "saving");
+    }
+
+    function markDraftSaved() {
+      draftDirty = false;
+      lastSavedAt = new Date().toISOString();
+
+      setSaveStatus("Saved just now", "saved");
+      updateGameMeta();
+    }
+
+    function updateGameMeta(status = "draft") {
+      const liveStatus = document.getElementById("gameLiveStatus");
+      const lastSaved = document.getElementById("gameLastSaved");
+
+      // Status cards are optional; avoid crashes if they are absent.
+      if (!liveStatus || !lastSaved) return;
+
+      if (!selectedGroupId) {
+        liveStatus.textContent = "No group selected";
+        lastSaved.textContent = "Not saved yet";
+        return;
+      }
+
+      if (!canEditActiveGame()) {
+        liveStatus.textContent = "Live view only";
+      } else if (status === "completed") {
+        liveStatus.textContent = "Game closed";
+      } else if (currentGameId || activeGameId) {
+        liveStatus.textContent = "Live draft · Shared with group";
+      } else {
+        liveStatus.textContent = "New draft";
+      }
+
+      lastSaved.textContent = lastSavedAt
+        ? `Saved ${new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit"
+          }).format(new Date(lastSavedAt))}`
+        : "Not saved yet";
+    }
 
     function todayForInput() {
       const today = new Date();
@@ -1768,6 +2093,91 @@ button.compact-player-name:hover {
       }
 
       updateSelectedGroupLabels();
+      renderOwnedGroups();
+    }
+
+    function validateDefaultBuyin() {
+      const input = document.getElementById("defaultBuyin");
+
+      if (!input) return true;
+
+      const rawValue = input.value.trim();
+
+      // Blank is allowed: it means no default buy-in is applied.
+      if (rawValue === "") {
+        input.setCustomValidity("");
+        return true;
+      }
+
+      const amount = Number(rawValue);
+      const isValid = Number.isFinite(amount) && amount >= 0;
+
+      input.setCustomValidity(
+        isValid
+          ? ""
+          : "Enter a valid buy-in amount of $0.00 or more."
+      );
+
+      if (!isValid) {
+        input.reportValidity();
+      }
+
+      return isValid;
+    }
+
+    function renderOwnedGroups() {
+      const container = document.getElementById("ownedGroupsList");
+
+      if (!currentUser) {
+        container.innerHTML = "";
+        return;
+      }
+
+      const ownedGroups = groups.filter(
+        group => group.owner_id === currentUser.id
+      );
+
+      if (ownedGroups.length === 0) {
+        container.innerHTML = `
+          <p class="empty">You do not own any groups yet.</p>
+        `;
+        return;
+      }
+
+      container.innerHTML = ownedGroups.map(group => `
+        <div class="owned-group-row">
+          <div>
+            <strong>${escapeHtml(group.name)}</strong>
+            <span>Group code: ${escapeHtml(group.join_code)}</span>
+          </div>
+
+          <div class="owned-group-actions">
+            <button
+              type="button"
+              class="secondary small"
+              data-rename-group="${group.id}"
+            >
+              Rename
+            </button>
+
+            <button
+              type="button"
+              class="secondary small"
+              data-regenerate-code="${group.id}"
+            >
+              New code
+            </button>
+
+            <button
+              type="button"
+              class="danger small"
+              data-delete-group="${group.id}"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join("");
     }
 
     async function createGroup() {
@@ -1834,6 +2244,146 @@ button.compact-player-name:hover {
       await loadGroups();
       alert("You joined the group.");
     }
+    async function deleteOwnedGroup(groupId) {
+      const group = groups.find(item => item.id === groupId);
+
+      if (!group || group.owner_id !== currentUser?.id) {
+        alert("Only the group owner can delete this group.");
+        return;
+      }
+
+      const confirmed = confirm(
+        `Delete "${group.name}" permanently?\n\n` +
+        "This deletes the group, player roster, game drafts, completed games, settlements, and leaderboard history. This cannot be undone."
+      );
+
+      if (!confirmed) return;
+
+      const { error } = await supabase
+        .from("poker_groups")
+        .delete()
+        .eq("id", groupId)
+        .eq("owner_id", currentUser.id);
+
+      if (error) {
+        console.error(error);
+        alert(`Could not delete group: ${error.message}`);
+        return;
+      }
+
+      if (selectedGroupId === groupId) {
+        selectedGroupId = "";
+        localStorage.removeItem("poker-settle-selected-group");
+      }
+
+      clearDraft();
+      resetActiveGameState();
+
+      await loadGroups();
+
+      alert(`"${group.name}" was deleted.`);
+    }
+
+    async function renameOwnedGroup(groupId) {
+  const group = groups.find(item => item.id === groupId);
+
+  if (!group || group.owner_id !== currentUser?.id) {
+    showToast("Only the group owner can rename this group.", "error");
+    return;
+  }
+
+  const name = prompt("New group name:", group.name)?.trim();
+
+  if (!name || name === group.name) return;
+
+  const { error } = await supabase
+    .from("poker_groups")
+    .update({ name })
+    .eq("id", groupId)
+    .eq("owner_id", currentUser.id);
+
+  if (error) {
+    console.error(error);
+    showToast(`Could not rename group: ${error.message}`, "error");
+    return;
+  }
+
+  await loadGroups();
+  showToast("Group renamed.", "success");
+}
+
+async function regenerateGroupCode(groupId) {
+  const group = groups.find(item => item.id === groupId);
+
+  if (!group || group.owner_id !== currentUser?.id) {
+    showToast(
+      "Only the group owner can regenerate the join code.",
+      "error"
+    );
+    return;
+  }
+
+  const confirmed = confirm(
+    `Generate a new join code for "${group.name}"?\n\n` +
+    "The old code will stop working immediately."
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from("poker_groups")
+    .update({ join_code: createJoinCode() })
+    .eq("id", groupId)
+    .eq("owner_id", currentUser.id);
+
+  if (error) {
+    console.error(error);
+    showToast(`Could not create a new code: ${error.message}`, "error");
+    return;
+  }
+
+  await loadGroups();
+  showToast("New join code created.", "success");
+}
+
+async function leaveSelectedGroup() {
+  const group = selectedGroup();
+
+  if (!group || isGroupAdmin()) {
+    showToast(
+      "Group owners cannot leave their own group. Transfer ownership or delete it instead.",
+      "warning"
+    );
+    return;
+  }
+
+  const confirmed = confirm(
+    `Leave "${group.name}"?\n\nYou will lose access to its roster, games, history, and leaderboard.`
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from("group_users")
+    .delete()
+    .eq("group_id", group.id)
+    .eq("user_id", currentUser.id);
+
+  if (error) {
+    console.error(error);
+    showToast(`Could not leave group: ${error.message}`, "error");
+    return;
+  }
+
+  if (selectedGroupId === group.id) {
+    selectedGroupId = "";
+    localStorage.removeItem("poker-settle-selected-group");
+  }
+
+  clearDraft();
+  await loadGroups();
+  showToast(`You left "${group.name}".`, "success");
+}
 
     async function groupChanged() {
 
@@ -1999,6 +2549,7 @@ button.compact-player-name:hover {
 
     function renderGamePlayerOptions() {
       const select = document.getElementById("gamePlayerSelect");
+
       const selectedIds = new Set(
         gameEntries.map(entry => entry.playerId)
       );
@@ -2008,7 +2559,13 @@ button.compact-player-name:hover {
       );
 
       select.innerHTML = `
-        <option value="">Choose a player</option>
+        <option value="">
+          ${
+            availablePlayers.length
+              ? "Choose a player"
+              : "No available players"
+          }
+        </option>
         ${availablePlayers.map(player => `
           <option value="${player.id}">
             ${escapeHtml(player.name)}
@@ -2016,7 +2573,10 @@ button.compact-player-name:hover {
         `).join("")}
       `;
 
-      select.disabled = !selectedGroupId || availablePlayers.length === 0;
+      select.disabled =
+        !selectedGroupId ||
+        !canEditActiveGame() ||
+        availablePlayers.length === 0;
     }
 
     async function addGamePlayer() {
@@ -2466,6 +3026,26 @@ function renderGameEntries() {
       updateGamePermissions("draft");
     }
 
+  function hasMeaningfulDraft(draft = null) {
+      const candidate = draft || {
+        gameId: currentGameId,
+        groupId: selectedGroupId,
+        gameEntries
+      };
+
+      return Boolean(
+        candidate &&
+        candidate.groupId === selectedGroupId &&
+        (
+          candidate.gameId ||
+          (
+            Array.isArray(candidate.gameEntries) &&
+            candidate.gameEntries.length > 0
+          )
+        )
+      );
+    }
+
    
 
     function saveDraft() {
@@ -2481,6 +3061,7 @@ function renderGameEntries() {
       };
 
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      markDraftDirty();
     }
 
     function loadDraft() {
@@ -2500,6 +3081,10 @@ function renderGameEntries() {
         document.getElementById("gameDate").value = draft.gameDate || todayForInput();
 
         gameEntries = Array.isArray(draft.gameEntries)? draft.gameEntries: [];
+
+        lastSavedAt = draft.savedAt || null;
+        draftDirty = false;
+        updateGameMeta();
 
         renderGameEntries();
         renderGamePlayerOptions();
@@ -2528,16 +3113,71 @@ function renderGameEntries() {
       setGameSetupCollapsed(false);
     }
 
-    function clearGame() {
+    // function discardCurrentDraft() {
+    //   clearDraft();
+    //   resetGameForm();
+
+    //   document.getElementById("settlements").innerHTML = `
+    //     <p class="empty">
+    //       Add players and amounts to calculate settlement.
+    //     </p>
+    //   `;
+
+    //   document
+    //     .getElementById("copySettlementActions")
+    //     .classList
+    //     .add("hidden");
+    // }
+
+    async function discardCurrentDraft() {
+      try {
+        // Remove the unfinished game from Supabase when one has been saved.
+        if (currentGameId) {
+          const { error } = await supabase
+            .from("games")
+            .delete()
+            .eq("id", currentGameId)
+            .eq("group_id", selectedGroupId);
+
+          if (error) {
+            console.error("Could not discard game draft:", error);
+            showToast(
+              `Could not clear the draft: ${error.message}`,
+              "error"
+            );
+            return false;
+          }
+        }
+
+        // Clear the locally stored draft and reset the current form.
+        clearDraft();
+        resetGameForm();
+
+        return true;
+      } catch (error) {
+        console.error("Could not discard game draft:", error);
+        showToast("Could not clear the draft.", "error");
+        return false;
+      }
+    }
+
+    async function clearGame() {
+      if (!hasMeaningfulDraft()) {
+        showToast("There is no active draft to clear.", "warning");
+        return;
+      }
+
       const confirmed = confirm(
-        "Clear this game form?\n\n" +
-        "This removes the unfinished game from this browser."
+        "Discard this unfinished game?\n\n" +
+        "This permanently removes the live draft, its players, buy-ins, cash-outs, " +
+        "temporary buy-in history, and settlement preview. Completed game history is not affected."
       );
 
       if (!confirmed) return;
 
-      clearDraft();
-      resetGameForm();
+      const discarded = await discardCurrentDraft();
+
+      if (!discarded) return;
 
       document.getElementById("settlements").innerHTML = `
         <p class="empty">
@@ -2545,9 +3185,13 @@ function renderGameEntries() {
         </p>
       `;
 
-      document.getElementById("copySettlementActions").classList.add("hidden");
+      document
+        .getElementById("copySettlementActions")
+        .classList
+        .add("hidden");
 
       setGameSetupCollapsed(false);
+      showToast("Draft cleared.", "success");
     }
 
     async function saveGame(closeGame = false) {
@@ -2555,6 +3199,15 @@ function renderGameEntries() {
         alert("Choose a group first.");
         return null;
       }
+
+      setSaveStatus("Saving…", "saving");
+
+      if (!validateDefaultBuyin()) {
+        showToast("Fix the default buy-in amount first.", "error");
+        return null;
+      }
+
+      
 
       if (gameEntries.length < 1) {
         alert("Add at least one player before saving.");
@@ -2614,6 +3267,7 @@ function renderGameEntries() {
 
         if (error) {
           console.error(error);
+          setSaveStatus("Could not save", "error");
           alert(`Could not create game: ${error.message}`);
           return null;
         }
@@ -2628,6 +3282,7 @@ function renderGameEntries() {
 
         if (error) {
           console.error(error);
+          setSaveStatus("Could not save", "error");
           alert(`Could not update game: ${error.message}`);
           return null;
         }
@@ -2648,6 +3303,7 @@ function renderGameEntries() {
 
       if (entryError) {
         console.error(entryError);
+        setSaveStatus("Could not save", "error");
         alert(`Could not save game players: ${entryError.message}`);
         return null;
       }
@@ -2675,7 +3331,8 @@ function renderGameEntries() {
       }
 
       if (!closeGame) {
-        saveDraft();
+       saveDraft();
+        markDraftSaved();
         await loadCurrentLiveGame();
         return gameId;
       }
@@ -2694,6 +3351,7 @@ function renderGameEntries() {
 
       if (removeSettlementsError) {
         console.error(removeSettlementsError);
+        setSaveStatus("Could not save", "error");
         alert(`Could not update settlements: ${removeSettlementsError.message}`);
         return null;
       }
@@ -2713,6 +3371,7 @@ function renderGameEntries() {
 
         if (settlementError) {
           console.error(settlementError);
+          setSaveStatus("Could not save", "error");
           alert(`Could not save settlements: ${settlementError.message}`);
           return null;
         }
@@ -2740,9 +3399,9 @@ function renderGameEntries() {
 
       
 
-      alert(
-        "Game closed successfully.\n\n" +
-        "Group history and net-profit leaderboard have been updated."
+      showToast(
+        "Game closed. History and leaderboard were updated.",
+        "success"
       );
 
       return gameId;
@@ -2954,7 +3613,9 @@ function renderGameEntries() {
               games_played: 0,
               total_buyins: 0,
               total_cashouts: 0,
-              net_result: 0
+              net_result: 0,
+              best_session: null,
+              worst_session: null
             });
           }
 
@@ -2964,6 +3625,18 @@ function renderGameEntries() {
           player.total_buyins += buyin;
           player.total_cashouts += cashout;
           player.net_result += cashout - buyin;
+
+          const sessionNet = cashout - buyin;
+
+          player.best_session =
+            player.best_session === null
+              ? sessionNet
+              : Math.max(player.best_session, sessionNet);
+
+          player.worst_session =
+            player.worst_session === null
+              ? sessionNet
+              : Math.min(player.worst_session, sessionNet);
         });
       });
 
@@ -3013,7 +3686,44 @@ function renderGameEntries() {
         return;
       }
 
-      container.innerHTML = players.map(player => {
+      const mostProfitable = players[0];
+      const mostActive = [...players].sort(
+        (a, b) => b.games_played - a.games_played
+      )[0];
+
+      const bestSingleSession = [...players]
+        .filter(player => player.best_session !== null)
+        .sort((a, b) => b.best_session - a.best_session)[0];
+
+      const insights = `
+        <div class="leaderboard-insights">
+          <div class="leaderboard-insight">
+            <span>Leader</span>
+            <strong>
+              ${escapeHtml(mostProfitable.player_name)} ·
+              ${money(mostProfitable.net_result)}
+            </strong>
+          </div>
+
+          <div class="leaderboard-insight">
+            <span>Most games</span>
+            <strong>
+              ${escapeHtml(mostActive.player_name)} ·
+              ${mostActive.games_played}
+            </strong>
+          </div>
+
+          <div class="leaderboard-insight">
+            <span>Best session</span>
+            <strong>
+              ${escapeHtml(bestSingleSession.player_name)} ·
+              ${money(bestSingleSession.best_session)}
+            </strong>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = insights + players.map(player => {
         const net = Number(player.net_result);
         const netClass = net >= 0 ? "positive" : "negative";
         const netText = net >= 0 ? `+${money(net)}` : money(net);
@@ -3032,6 +3742,10 @@ function renderGameEntries() {
               Cash-outs: ${money(player.total_cashouts)} ·
               Games: ${player.games_played}
             </span>
+            <span class="muted">
+              Average per game:
+              ${money(player.net_result / player.games_played)}
+            </span><br>
           </div>
         `;
       }).join("");
@@ -3054,6 +3768,8 @@ function renderGameEntries() {
     }
 
     async function applyDefaultBuyinToPlayers() {
+      if (!validateDefaultBuyin()) return;
+
       const defaultBuyin = toNumber(
         document.getElementById("defaultBuyin").value
       );
@@ -3247,10 +3963,18 @@ async function loadActiveGame(gameId) {
   renderGamePlayerOptions();
   updateGameTotals();
   updateGamePermissions(game.status);
+  lastSavedAt = new Date().toISOString();
+  draftDirty = false;
+  updateGameMeta(game.status);
 }
 
 function updateGamePermissions(status = "draft") {
   const editable = canEditActiveGame();
+  updateGameMeta(status);
+
+  if (!editable) {
+    setSaveStatus("Live view only");
+  }
   const viewingAnotherPlayersGame = !editable && Boolean(activeGameId);
   const readOnlyMessage = document.getElementById("gameReadOnlyMessage");
 
@@ -3351,6 +4075,8 @@ function updateGamePermissions(status = "draft") {
       .subscribe();
   }
 
+  
+
   async function openGameForViewing(gameId) {
     if (activeGameId === gameId && !canEditActiveGame()) {
       return;
@@ -3399,11 +4125,11 @@ function updateGamePermissions(status = "draft") {
     }
 
     banner.classList.remove("hidden");
-    banner.innerHTML = `
+   banner.innerHTML = `
       <div class="notice">
         <strong>Live game in progress:</strong>
         ${escapeHtml(liveGame.name)}<br>
-        You are viewing this game live. Only the host can edit it.
+        You are viewing updates as the host records buy-ins and cash-outs.
       </div>
     `;
 
@@ -3512,10 +4238,28 @@ function updateGameSetupVisibility() {
       joinGroup
     );
 
-    document.getElementById("groupSelect").addEventListener(
-      "change",
-      async event => {
-        selectedGroupId = event.target.value;
+    document
+      .getElementById("groupSelect")
+      .addEventListener("change", async event => {
+        const nextGroupId = event.target.value;
+
+        if (
+          nextGroupId !== selectedGroupId &&
+          hasMeaningfulDraft() &&
+          canEditActiveGame()
+        ) {
+          const proceed = confirm(
+            "Switch groups?\n\nYour current draft is saved locally, but any unsaved edits may be lost."
+          );
+
+          if (!proceed) {
+            event.target.value = selectedGroupId;
+            return;
+          }
+        }
+
+        selectedGroupId = nextGroupId;
+
         localStorage.setItem(
           "poker-settle-selected-group",
           selectedGroupId
@@ -3523,8 +4267,7 @@ function updateGameSetupVisibility() {
 
         renderGroups();
         await groupChanged();
-      }
-    );
+      });
 
     document.querySelectorAll(".workspace-tab").forEach(button => {
       button.addEventListener("click", () => {
@@ -3574,13 +4317,30 @@ function updateGameSetupVisibility() {
 
       const field = input.dataset.field;
 
-      if (field === "newBuyin") {
-        entry.pendingBuyin = input.value;
+     if (field === "newBuyin") {
+        const value = input.value.trim();
+        const amount = Number.parseFloat(value);
+
+        input.classList.toggle(
+          "input-invalid",
+          value !== "" && (!Number.isFinite(amount) || amount <= 0)
+        );
+
+        entry.pendingBuyin = value;
+        markDraftDirty();
         return;
       }
 
       if (field === "cashout") {
-        entry.cashout = input.value;
+        const value = input.value.trim();
+        const amount = Number.parseFloat(value);
+
+        input.classList.toggle(
+          "input-invalid",
+          value !== "" && (!Number.isFinite(amount) || amount < 0)
+        );
+
+        entry.cashout = value;
         updateGameTotals();
         saveDraft();
       }
@@ -3692,7 +4452,7 @@ function updateGameSetupVisibility() {
           rawBuyin !== "" &&
           (!Number.isFinite(amount) || amount <= 0)
         ) {
-          alert("Enter a buy-in amount greater than $0.");
+          showToast("Enter an additional buy-in greater than $0.", "error");
           return;
         }
 
@@ -3713,7 +4473,7 @@ function updateGameSetupVisibility() {
 
           if (error) {
             console.error(error);
-            alert(`Could not save buy-in: ${error.message}`);
+            showToast(`Could not save buy-in: ${error.message}`, "error");
             return;
           }
 
@@ -3730,6 +4490,8 @@ function updateGameSetupVisibility() {
         renderGameEntries();
         updateGameTotals();
         saveDraft();
+        markDraftSaved();
+        showToast("Player amounts saved.", "success");
         return;
       }
 
@@ -3771,6 +4533,40 @@ function updateGameSetupVisibility() {
       "change",
       saveDraft
     );
+
+    document.getElementById("ownedGroupsList").addEventListener("click", async event => {
+      const deleteButton = event.target.closest("[data-delete-group]");
+      const renameButton = event.target.closest("[data-rename-group]");
+      const codeButton = event.target.closest("[data-regenerate-code]");
+
+      if (deleteButton) {
+        await deleteOwnedGroup(deleteButton.dataset.deleteGroup);
+        return;
+      }
+
+      if (renameButton) {
+        await renameOwnedGroup(renameButton.dataset.renameGroup);
+        return;
+      }
+
+      if (codeButton) {
+        await regenerateGroupCode(codeButton.dataset.regenerateCode);
+      }
+    });
+
+    document.getElementById("defaultBuyin").addEventListener("input", () => {
+      validateDefaultBuyin();
+      markDraftDirty();
+      saveDraft();
+        });
+    
+
+    window.addEventListener("beforeunload", event => {
+      if (!draftDirty || !canEditActiveGame()) return;
+
+      event.preventDefault();
+      event.returnValue = "";
+    });
 
     document.getElementById("saveGameButton").addEventListener(
       "click",
