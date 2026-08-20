@@ -1032,12 +1032,10 @@
 
       .lb-row {
         display: grid;
-        grid-template-columns:
-          26px minmax(110px, 1fr) 58px 88px 92px 96px
-          96px;
+        grid-template-columns: 24px minmax(0, 1fr) 84px;
         align-items: center;
-        gap: 10px;
-        padding: 11px 14px;
+        gap: 8px;
+        padding: 10px 12px;
         border-bottom: 1px solid var(--line);
         transition: background 0.12s ease;
       }
@@ -1064,13 +1062,14 @@
       .lb-name {
         display: block;
         min-width: 0;
+        overflow: hidden;
       }
 
       .lb-name-text {
         display: block;
         overflow: hidden;
         color: var(--ink);
-        font-size: 0.94rem;
+        font-size: 0.86rem;
         font-weight: 600;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1078,6 +1077,172 @@
 
       /* A 4px track scaled to the biggest swing in the group; it encodes
          magnitude that the columns of digits alone do not convey. */
+      .lb-player-row {
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+
+      .lb-player-row:hover,
+      .lb-player-row:focus-visible {
+        background: var(--surface-soft);
+        outline: none;
+      }
+
+      .lb-details {
+        display: none;
+        margin: 0 0 10px;
+        padding: 0 16px 10px;
+        border-top: 1px solid var(--line);
+        background: var(--surface-2);
+        box-sizing: border-box;
+      }
+
+      .lb-player-row[aria-expanded="true"] + .lb-details {
+        display: block;
+      }
+
+      .lb-details-header,
+      .lb-session {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 84px 84px 84px;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .lb-details-header {
+        padding: 9px 0;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .lb-details-header span:not(:first-child),
+      .lb-session > span:not(:first-child),
+      .lb-session > strong {
+        text-align: right;
+      }
+
+      .lb-session {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.25;
+      }
+
+      .lb-session:last-child {
+        border-bottom: 0;
+      }
+
+      .lb-session > span,
+      .lb-session > strong {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums lining-nums;
+      }
+
+      .lb-session-date {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .lb-session strong {
+        font-size: 0.8rem;
+      }
+
+      .lb-details-empty {
+        padding: 10px 12px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 640px) {
+        .lb-details {
+          padding: 0 10px 8px;
+        }
+
+        .lb-details-header,
+        .lb-session {
+          grid-template-columns: minmax(0, 1fr) 62px 62px 62px;
+          gap: 5px;
+        }
+
+        .lb-details-header {
+          font-size: 0.62rem;
+          padding: 8px 0;
+        }
+
+        .lb-session {
+          padding: 7px 0;
+          font-size: 0.7rem;
+        }
+
+        .lb-session strong {
+          font-size: 0.72rem;
+        }
+      }
+
+      .lb-summary {
+        display: block;
+        margin-top: 1px;
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+      }
+
+      .lb-summary-line {
+        display: block;
+        overflow: visible;
+        text-overflow: clip;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 640px) {
+        .lb-row {
+          grid-template-columns: 22px minmax(0, 1fr) 78px;
+          gap: 6px;
+          padding: 9px 10px;
+        }
+
+        .lb-name-text {
+          font-size: 0.82rem;
+        }
+
+        .lb-summary {
+          font-size: 0.64rem;
+          line-height: 1.22;
+        }
+
+        .lb-num.lb-net {
+          font-size: 0.78rem;
+          white-space: nowrap;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .lb-row {
+          grid-template-columns: 21px minmax(0, 1fr) 74px;
+          gap: 5px;
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+
+        .lb-summary {
+          font-size: 0.61rem;
+        }
+
+        .lb-num.lb-net {
+          font-size: 0.75rem;
+        }
+      }
+
       .lb-track {
         display: block;
         height: 4px;
@@ -1119,7 +1284,7 @@
 
       @media (max-width: 860px) {
         .lb-row {
-          grid-template-columns: 26px minmax(90px, 1fr) 92px;
+          grid-template-columns: 24px minmax(0, 1fr) 84px;
         }
 
         /* Games, buy-ins, cash-outs and average are reference detail; on a
@@ -1340,6 +1505,54 @@
       .roster-row:hover .roster-remove {
         border-color: #e0b3a7;
         color: var(--red);
+      }
+
+      .history-filters {
+        margin: 0 0 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .history-search input {
+        width: 100%;
+      }
+      .history-filter-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: end;
+        margin-top: 10px;
+      }
+      .history-filter-count {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .history-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .history-page-label {
+        min-width: 88px;
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .history-filter-row {
+          grid-template-columns: 1fr 1fr;
+        }
+        .history-filter-row button {
+          grid-column: 1 / -1;
+          width: 100%;
+        }
       }
 
       .history-game {
@@ -2825,6 +3038,14 @@
               <div class="empty-workspace-actions">
                 <button
                   type="button"
+                  class="start-game-button"
+                  id="startGameButton"
+                >
+                  Start a game
+                </button>
+
+                <button
+                  type="button"
                   class="secondary"
                   data-panel-link="historyPanel"
                 >
@@ -2837,14 +3058,6 @@
                   data-panel-link="leaderboardPanel"
                 >
                   View leaderboard
-                </button>
-
-                <button
-                  type="button"
-                  class="start-game-button"
-                  id="startGameButton"
-                >
-                  Start a game
                 </button>
               </div>
             </div>
@@ -3029,6 +3242,38 @@
               </span>
             </div>
 
+            <div class="history-filters" id="historyFilters">
+              <div class="history-search">
+                <label class="sr-only" for="historySearch">Search games</label>
+                <input
+                  id="historySearch"
+                  type="search"
+                  placeholder="Search games..."
+                  autocomplete="off"
+                />
+              </div>
+              <div class="history-filter-row">
+                <div class="filter-field">
+                  <label for="historyPlayerFilter">Player</label>
+                  <select id="historyPlayerFilter">
+                    <option value="">All players</option>
+                  </select>
+                </div>
+                <div class="filter-field">
+                  <label for="historyDateFilter">Date</label>
+                  <select id="historyDateFilter">
+                    <option value="all">All time</option>
+                    <option value="month">This month</option>
+                    <option value="3months">Last 3 months</option>
+                    <option value="year">This year</option>
+                  </select>
+                </div>
+                <button class="ghost" id="clearHistoryFiltersButton">
+                  Clear
+                </button>
+              </div>
+              <p class="history-filter-count" id="historyFilterCount"></p>
+            </div>
             <div id="gameHistory">
               <p class="empty">Select a group to view completed games.</p>
             </div>
@@ -3193,6 +3438,7 @@
       let gameSubscription = null;
       let leaderboardStartDate = "";
       let leaderboardEndDate = "";
+      let expandedLeaderboardPlayerId = null;
       let draftDirty = false;
       let lastSavedAt = null;
 
@@ -3638,7 +3884,9 @@
           ? "Closed"
           : "No game";
 
-        toggleHidden("startGameButton", closed);
+        // Starting the next game should be available both when there has
+        // never been a game and when the previous game was just closed.
+        toggleHidden("startGameButton", false);
 
         // Host copy about adding players and settling has nothing to do with a
         // member looking at an empty panel.
@@ -5438,6 +5686,8 @@
 
       async function loadHistory() {
         if (!selectedGroupId) {
+          historyGames = [];
+          populateHistoryPlayerFilter([]);
           renderHistory([]);
           return;
         }
@@ -5478,10 +5728,157 @@
           return;
         }
 
-        renderHistory(data || []);
+        historyGames = data || [];
+        populateHistoryPlayerFilter(historyGames);
+        applyHistoryFilters();
       }
 
-      function renderHistory(games) {
+      let historyGames = [];
+      let historyFilterDebounce = null;
+      let historyPage = 1;
+      const HISTORY_PAGE_SIZE = 5;
+
+      function populateHistoryPlayerFilter(games) {
+        const select = document.getElementById("historyPlayerFilter");
+        if (!select) return;
+
+        const current = select.value;
+        const players = new Map();
+
+        // Prefer the group's current roster so the filter is useful even when
+        // a player has not appeared in the most recent history rows.
+        (roster || []).forEach((player) => {
+          if (player.id)
+            players.set(player.id, player.name || "Unknown player");
+        });
+
+        // Supplement with players found in completed games.
+        (games || []).forEach((game) =>
+          (game.game_entries || []).forEach((entry) => {
+            if (entry.group_player_id) {
+              players.set(
+                entry.group_player_id,
+                entry.group_players?.name ||
+                  players.get(entry.group_player_id) ||
+                  "Unknown player",
+              );
+            }
+          }),
+        );
+
+        select.innerHTML =
+          `<option value="">All players</option>` +
+          [...players.entries()]
+            .sort((a, b) => a[1].localeCompare(b[1]))
+            .map(
+              ([id, name]) =>
+                `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`,
+            )
+            .join("");
+
+        if (players.has(current)) select.value = current;
+      }
+
+      function historyDateMatches(game, filter) {
+        if (!filter || filter === "all") return true;
+
+        const date = new Date(game.played_at);
+        if (Number.isNaN(date.getTime())) return false;
+
+        const now = new Date();
+
+        if (filter === "year") {
+          return date.getFullYear() === now.getFullYear();
+        }
+
+        if (filter === "month") {
+          return (
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth()
+          );
+        }
+
+        if (filter === "3months") {
+          const cutoff = new Date(now);
+          cutoff.setMonth(cutoff.getMonth() - 3);
+          return date >= cutoff;
+        }
+
+        return true;
+      }
+
+      function applyHistoryFilters(resetPage = true) {
+        const search = (document.getElementById("historySearch")?.value || "")
+          .trim()
+          .toLowerCase();
+        const playerId =
+          document.getElementById("historyPlayerFilter")?.value || "";
+        const dateFilter =
+          document.getElementById("historyDateFilter")?.value || "all";
+
+        if (resetPage) historyPage = 1;
+
+        const filtered = historyGames.filter((game) => {
+          const nameMatch =
+            !search ||
+            String(game.name || "")
+              .toLowerCase()
+              .includes(search);
+
+          const playerMatch =
+            !playerId ||
+            (game.game_entries || []).some(
+              (entry) => entry.group_player_id === playerId,
+            );
+
+          return (
+            nameMatch && playerMatch && historyDateMatches(game, dateFilter)
+          );
+        });
+
+        const totalPages = Math.max(
+          1,
+          Math.ceil(filtered.length / HISTORY_PAGE_SIZE),
+        );
+
+        historyPage = Math.min(Math.max(historyPage, 1), totalPages);
+
+        const startIndex = (historyPage - 1) * HISTORY_PAGE_SIZE;
+        const visibleGames = filtered.slice(
+          startIndex,
+          startIndex + HISTORY_PAGE_SIZE,
+        );
+
+        const count = document.getElementById("historyFilterCount");
+        if (count) {
+          if (filtered.length === 0) {
+            count.textContent = "No games match your filters";
+          } else {
+            const first = startIndex + 1;
+            const last = Math.min(
+              startIndex + HISTORY_PAGE_SIZE,
+              filtered.length,
+            );
+            count.textContent = `Showing ${first}–${last} of ${filtered.length} games`;
+          }
+        }
+
+        renderHistory(visibleGames, filtered.length, totalPages);
+      }
+
+      function clearHistoryFilters() {
+        document.getElementById("historySearch").value = "";
+        document.getElementById("historyPlayerFilter").value = "";
+        document.getElementById("historyDateFilter").value = "all";
+        historyPage = 1;
+        applyHistoryFilters(true);
+      }
+
+      function renderHistory(
+        games,
+        totalFiltered = games.length,
+        totalPages = 1,
+      ) {
         const history = document.getElementById("gameHistory");
 
         if (!selectedGroupId) {
@@ -5634,6 +6031,37 @@
         `;
           })
           .join("");
+
+        if (totalFiltered > HISTORY_PAGE_SIZE) {
+          const prevDisabled = historyPage <= 1 ? "disabled" : "";
+          const nextDisabled = historyPage >= totalPages ? "disabled" : "";
+
+          history.innerHTML += `
+            <div class="history-pagination">
+              <button
+                type="button"
+                class="ghost small"
+                data-history-page="prev"
+                ${prevDisabled}
+              >
+                Previous
+              </button>
+
+              <span class="history-page-label">
+                Page ${historyPage} of ${totalPages}
+              </span>
+
+              <button
+                type="button"
+                class="ghost small"
+                data-history-page="next"
+                ${nextDisabled}
+              >
+                Next
+              </button>
+            </div>
+          `;
+        }
       }
 
       async function loadLeaderboard() {
@@ -5647,6 +6075,7 @@
           .select(
             `
           id,
+          name,
           played_at,
           game_entries (
             buyin,
@@ -5701,6 +6130,7 @@
                 net_result: 0,
                 best_session: null,
                 worst_session: null,
+                sessions: [],
               });
             }
 
@@ -5710,6 +6140,15 @@
             player.total_buyins += buyin;
             player.total_cashouts += cashout;
             player.net_result += cashout - buyin;
+
+            player.sessions.push({
+              gameId: game.id,
+              gameName: game.name || "Poker game",
+              playedAt: game.played_at,
+              buyin,
+              cashout,
+              net: cashout - buyin,
+            });
 
             const sessionNet = cashout - buyin;
 
@@ -5748,6 +6187,56 @@
           });
 
         renderLeaderboard(players);
+      }
+
+      function formatLeaderboardDate(value) {
+        if (!value) return "Date unavailable";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Date unavailable";
+        return date.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+
+      function renderLeaderboardSessionDetails(player) {
+        const sessions = [...(player.sessions || [])].sort(
+          (a, b) => new Date(b.playedAt) - new Date(a.playedAt),
+        );
+
+        if (!sessions.length) {
+          return `<div class="lb-details-empty">No completed games found.</div>`;
+        }
+
+        return `
+          <div class="lb-details" data-lb-details="${escapeHtml(player.player_id)}">
+            <div class="lb-details-header">
+              <span>Date</span>
+              <span>Buy-in</span>
+              <span>Cash-out</span>
+              <span>Net</span>
+            </div>
+            ${sessions
+              .map((session) => {
+                const sessionClass = session.net >= 0 ? "positive" : "negative";
+                const sessionNet =
+                  session.net >= 0
+                    ? `+${money(session.net)}`
+                    : money(session.net);
+
+                return `
+                  <div class="lb-session">
+                    <span class="lb-session-date">${formatLeaderboardDate(session.playedAt)}</span>
+                    <span>${money(session.buyin)}</span>
+                    <span>${money(session.cashout)}</span>
+                    <strong class="${sessionClass}">${sessionNet}</strong>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+        `;
       }
 
       function renderLeaderboard(players) {
@@ -5827,26 +6316,28 @@
                 : 0;
 
             return `
-          <div class="lb-row">
+          <div class="lb-row lb-player-row" role="button" tabindex="0"
+            aria-expanded="false" data-lb-player="${escapeHtml(player.player_id)}">
             <span class="rank${
               player.profit_rank <= 3 ? ` rank-${player.profit_rank}` : ""
             }">${player.profit_rank}</span>
 
             <span class="lb-name">
               <span class="lb-name-text">${escapeHtml(player.player_name)}</span>
+              <span class="lb-summary">
+                <span class="lb-summary-line">
+                  Buy-ins: ${money(player.total_buyins)} · Cash-outs: ${money(player.total_cashouts)}
+                </span>
+                <span class="lb-summary-line">
+                  Games: ${games} · Avg: ${games > 0 ? money(net / games) : "—"}
+                </span>
+              </span>
               <span class="lb-track"><span class="lb-bar ${netClass}" style="width:${width}%"></span></span>
             </span>
 
-            <span class="lb-num lb-secondary">${games}</span>
-            <span class="lb-num lb-secondary">${money(player.total_buyins)}</span>
-            <span class="lb-num lb-secondary">${money(
-              player.total_cashouts,
-            )}</span>
-            <span class="lb-num lb-secondary">${
-              games > 0 ? money(net / games) : "—"
-            }</span>
             <span class="lb-num lb-net ${netClass}">${netText}</span>
           </div>
+          ${renderLeaderboardSessionDetails(player)}
         `;
           })
           .join("");
@@ -5858,16 +6349,23 @@
           <div class="lb-row lb-head">
             <span>#</span>
             <span>Player</span>
-            <span class="lb-num lb-secondary">Games</span>
-            <span class="lb-num lb-secondary">Buy-ins</span>
-            <span class="lb-num lb-secondary">Cash-outs</span>
-            <span class="lb-num lb-secondary">Avg / game</span>
             <span class="lb-num">Net</span>
           </div>
 
           ${rows}
         </div>
       `;
+
+        // Re-open the same player after a background/realtime refresh.
+        // Rendering replaces the DOM, so the expanded state must be restored.
+        if (expandedLeaderboardPlayerId) {
+          const expandedRow = container.querySelector(
+            `[data-lb-player="${CSS.escape(expandedLeaderboardPlayerId)}"]`,
+          );
+          if (expandedRow) {
+            expandedRow.setAttribute("aria-expanded", "true");
+          }
+        }
       }
 
       // Clipboard access is often blocked when Poker Vault is opened
@@ -6930,6 +7428,37 @@
       // });
 
       document
+        .getElementById("leaderboard")
+        .addEventListener("click", (event) => {
+          const row = event.target.closest(".lb-player-row");
+          if (!row) return;
+
+          const expanded = row.getAttribute("aria-expanded") === "true";
+          const playerId = row.dataset.lbPlayer || null;
+
+          if (expanded) {
+            expandedLeaderboardPlayerId = null;
+            row.setAttribute("aria-expanded", "false");
+          } else {
+            expandedLeaderboardPlayerId = playerId;
+            row.setAttribute("aria-expanded", "true");
+          }
+        });
+
+      document
+        .getElementById("leaderboard")
+        .addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+
+          const row = event.target.closest(".lb-player-row");
+          if (!row) return;
+
+          event.preventDefault();
+          const expanded = row.getAttribute("aria-expanded") === "true";
+          row.setAttribute("aria-expanded", String(!expanded));
+        });
+
+      document
         .getElementById("gameEntries")
         .addEventListener("click", async (event) => {
           const button = event.target.closest("button");
@@ -7215,6 +7744,39 @@
       updateAuthUI();
       renderGameEntries();
       updateGameTotals();
+      document
+        .getElementById("gameHistory")
+        ?.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-history-page]");
+          if (!button || button.disabled) return;
+
+          if (button.dataset.historyPage === "prev") {
+            historyPage -= 1;
+          } else if (button.dataset.historyPage === "next") {
+            historyPage += 1;
+          }
+
+          applyHistoryFilters(false);
+        });
+
+      document
+        .getElementById("historySearch")
+        ?.addEventListener("input", () => {
+          clearTimeout(historyFilterDebounce);
+          historyFilterDebounce = setTimeout(
+            () => applyHistoryFilters(true),
+            120,
+          );
+        });
+      document
+        .getElementById("historyPlayerFilter")
+        ?.addEventListener("change", () => applyHistoryFilters(true));
+      document
+        .getElementById("historyDateFilter")
+        ?.addEventListener("change", () => applyHistoryFilters(true));
+      document
+        .getElementById("clearHistoryFiltersButton")
+        ?.addEventListener("click", clearHistoryFilters);
     </script>
   </body>
 </html>
