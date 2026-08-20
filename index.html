@@ -2891,6 +2891,26 @@
           flex: 1;
         }
       }
+      @media (max-width: 640px) {
+        .workspace-nav {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 2px;
+          overflow: hidden;
+          padding: 3px;
+        }
+
+        .workspace-tab {
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          text-align: center;
+          white-space: nowrap;
+        }
+      }
     </style>
   </head>
 
