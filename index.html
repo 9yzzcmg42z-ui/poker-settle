@@ -3489,6 +3489,63 @@
           grid-column: 2;
         }
       }
+      @media (max-width: 560px) {
+        #manageGroupsTab {
+          white-space: nowrap;
+        }
+      }
+
+      .owned-group-row .group-code-text {
+        user-select: text;
+        -webkit-user-select: text;
+      }
+      @media (max-width: 560px) {
+        #dashboard .workspace-nav {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+          gap: 8px;
+        }
+
+        #dashboard .workspace-nav .workspace-tab {
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
+        #dashboard .workspace-nav .workspace-tab:only-child,
+        #dashboard .workspace-nav .workspace-tab:first-child:last-of-type {
+          grid-column: 1 / -1;
+        }
+
+        #dashboard .workspace-nav .workspace-tab.hidden {
+          display: none;
+        }
+
+        /* When Manage Groups is the only additional tab, Game and Manage
+           Groups each fill a full half of the available width. */
+        #dashboard .workspace-nav #manageGroupsTab:not(.hidden) {
+          display: block;
+        }
+      }
+      @media (max-width: 560px) {
+        #dashboard .workspace-nav {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        #dashboard .workspace-nav .workspace-tab {
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
+        #dashboard .workspace-nav .workspace-tab.hidden {
+          display: none !important;
+        }
+      }
 </style>
   </head>
 
@@ -3577,12 +3634,15 @@
         <nav class="workspace-nav">
           <button class="workspace-tab active" data-panel="gamePanel">
             Game
-          </button> 
-<button class="workspace-tab" data-panel="historyPanel">
+          </button>
+          <button class="workspace-tab hidden" id="manageGroupsTab" data-panel="groupManagementCard">
+            Manage Groups
+          </button>
+          <button class="workspace-tab hidden" data-panel="historyPanel" hidden>
             History
           </button>
 
-          <button class="workspace-tab" data-panel="leaderboardPanel">
+          <button class="workspace-tab hidden" data-panel="leaderboardPanel" hidden>
             Leaderboard
           </button>
         </nav>
@@ -3817,7 +3877,7 @@
             </div>
           </div>
         </section>
-        <section class="workspace-panel" id="historyPanel">
+        <section class="workspace-panel" id="historyPanel" hidden>
           <div class="card">
             <div class="panel-title-row">
               <div>
@@ -3864,7 +3924,7 @@
           </div>
         </section>
 
-        <section class="workspace-panel" id="leaderboardPanel">
+        <section class="workspace-panel" id="leaderboardPanel" hidden>
           <div class="card">
             <div class="panel-title-row">
               <div>
@@ -4506,9 +4566,11 @@
 
         document.getElementById("adminConsoleButton")?.classList.toggle("hidden", !isSuperAdmin());
         document.getElementById("adminConsoleSection")?.classList.toggle("hidden", !superAdmin);
+        // Manage Groups is navigation available to every signed-in user.
+        // Permissions are enforced when protected actions are performed.
         document.getElementById("manageGroupsButton")?.classList.toggle(
           "hidden",
-          !(superAdmin || ownsAnyGroup)
+          !currentUser
         );
 
         const groupAdmin = isGroupAdmin();
@@ -4532,8 +4594,9 @@
           ?.classList.toggle("hidden", !canViewHistoricalData);
 
         document.querySelectorAll('[data-panel="rosterPanel"], [data-panel="historyPanel"], [data-panel="leaderboardPanel"]').forEach((button) => {
-          button.classList.toggle("hidden", !canViewHistoricalData);
-          button.hidden = !canViewHistoricalData;
+          const visible = canViewHistoricalData;
+          button.classList.toggle("hidden", !visible);
+          button.hidden = !visible;
         });
 
         const historyPanel = document.getElementById("historyPanel");
@@ -4649,10 +4712,7 @@
       }
 
       function showPanel(panelId) {
-        // Switching workspace always exits Manage Groups.
-        document
-          .getElementById("groupManagementCard")
-          ?.classList.add("hidden");
+        const managementCard = document.getElementById("groupManagementCard");
 
         document.querySelectorAll(".workspace-panel").forEach((panel) => {
           panel.classList.toggle("active", panel.id === panelId);
@@ -4662,10 +4722,28 @@
           button.classList.toggle("active", button.dataset.panel === panelId);
         });
 
+        if (panelId === "groupManagementCard") {
+          document.querySelectorAll(".workspace-panel").forEach((panel) => {
+            panel.classList.remove("active");
+          });
+
+          if (groups.length > 0) {
+            showPanel("gamePanel");
+            return;
+          }
+
+          managementCard?.classList.remove("hidden");
+          renderOwnedGroups();
+          return;
+        }
+
+        managementCard?.classList.add("hidden");
+
         if (panelId === "historyPanel") {
           if (isAppAdmin() || isGroupAdmin()) loadHistory();
           else { showPanel("gamePanel"); return; }
         }
+
         if (panelId === "leaderboardPanel") {
           if (isAppAdmin() || isGroupAdmin()) loadLeaderboard();
           else { showPanel("gamePanel"); return; }
@@ -4845,6 +4923,16 @@
         renderGroups();
         await groupChanged();
         updateRoleVisibility();
+
+        const manageGroupsTab = document.getElementById("manageGroupsTab");
+        if (manageGroupsTab) {
+          manageGroupsTab.classList.toggle("hidden", groups.length > 0);
+        }
+
+        if (groups.length === 0) {
+          document.getElementById("groupManagementCard")?.classList.add("hidden");
+          showPanel("gamePanel");
+        }
       }
 
       function renderGroups() {
@@ -4945,7 +5033,7 @@
         <div class="owned-group-row">
           <div>
             <strong>${escapeHtml(group.name)}</strong>
-            <span>Group code: ${escapeHtml(group.join_code)}</span>
+            <span class="group-code-text">Group code: ${escapeHtml(group.join_code)}</span>
           </div>
 
           <div class="owned-group-actions">
@@ -4956,6 +5044,18 @@
             >
               Users
             </button>
+
+            ${
+              group.owner_id === currentUser.id
+                ? `<button
+              type="button"
+              class="ghost small"
+              data-copy-group-code="${group.id}"
+            >
+              Copy code
+            </button>`
+                : ""
+            }
 
             ${
               isSuperAdmin() || group.owner_id === currentUser.id
@@ -5176,6 +5276,58 @@
         });
       }
 
+      async function copyGroupCode(groupId) {
+        const group = groups.find((item) => item.id === groupId);
+
+        if (!group || group.owner_id !== currentUser?.id) {
+          showToast("Only the group creator can copy this code.", "error");
+          return;
+        }
+
+        try {
+          const code = group.join_code;
+
+          // Clipboard API is not available in every deployed/browser context.
+          // Use it when available, then fall back to a temporary textarea.
+          let copied = false;
+
+          if (navigator.clipboard && window.isSecureContext) {
+            try {
+              await navigator.clipboard.writeText(code);
+              copied = true;
+            } catch (clipboardError) {
+              console.warn("Clipboard API failed, using fallback:", clipboardError);
+            }
+          }
+
+          if (!copied) {
+            const textarea = document.createElement("textarea");
+            textarea.value = code;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            textarea.style.top = "0";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+
+            copied = document.execCommand("copy");
+            textarea.remove();
+          }
+
+          if (!copied) {
+            throw new Error("Browser did not allow copying to clipboard.");
+          }
+
+          showToast(`Group code ${code} copied.`, "success");
+        } catch (error) {
+          console.error("Could not copy group code:", error);
+          showToast("Could not copy the group code. Please copy it manually.", "error");
+        }
+      }
+
       async function createGroup() {
         const nameInput = document.getElementById("newGroupName");
         const name = nameInput.value.trim();
@@ -5201,8 +5353,10 @@
         nameInput.value = "";
 
         document.getElementById("groupManagementCard").classList.add("hidden");
+        document.getElementById("manageGroupsTab")?.classList.add("hidden");
 
         await loadGroups();
+        showPanel("gamePanel");
         showToast("Group created and selected.", "success");
       }
 
@@ -5230,8 +5384,10 @@
         codeInput.value = "";
 
         document.getElementById("groupManagementCard").classList.add("hidden");
+        document.getElementById("manageGroupsTab")?.classList.add("hidden");
 
         await loadGroups();
+        showPanel("gamePanel");
         showToast("You joined the group.", "success");
       }
       async function deleteOwnedGroup(groupId) {
@@ -8277,19 +8433,24 @@
       });
 
       document.getElementById("manageGroupsButton").addEventListener("click", () => {
-        if (!isSuperAdmin() && !groups.some((group) => group.owner_id === currentUser?.id)) {
+        if (!currentUser) {
           closeBannerMenu();
           return;
         }
+
         document.getElementById("adminConsoleSection")?.classList.add("hidden");
         closeBannerMenu();
+
         const card = document.getElementById("groupManagementCard");
-        card.classList.toggle("hidden");
-        if (!card.classList.contains("hidden")) {
-          document.getElementById("groupRosterSection")?.classList.add("hidden");
-          document.getElementById("groupUsersSection")?.classList.add("hidden");
-          card.scrollIntoView({ behavior: "smooth", block: "start" });
+        card.classList.remove("hidden");
+        document.getElementById("groupRosterSection")?.classList.add("hidden");
+        document.getElementById("groupUsersSection")?.classList.add("hidden");
+
+        if (typeof renderOwnedGroups === "function") {
+          renderOwnedGroups();
         }
+
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
       });
 
       document
@@ -8364,6 +8525,12 @@
           document.getElementById("groupRosterSection")?.classList.add("hidden");
           document.getElementById("groupUsersSection")?.classList.add("hidden");
         });
+
+      document.addEventListener("click", (event) => {
+        const copyButton = event.target.closest("[data-copy-group-code]");
+        if (!copyButton) return;
+        copyGroupCode(copyButton.dataset.copyGroupCode);
+      });
 
       document
         .getElementById("createGroupButton")
