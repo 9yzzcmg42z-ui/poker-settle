@@ -1091,8 +1091,8 @@
 
         .lb-details-header,
         .lb-session {
-          grid-template-columns: minmax(0, 1fr) 62px 62px 62px;
-          gap: 5px;
+          grid-template-columns: minmax(76px, 1.2fr) minmax(52px, 0.9fr) minmax(52px, 0.9fr) minmax(52px, 0.9fr);
+          gap: 4px;
         }
 
         .lb-details-header {
@@ -1102,7 +1102,14 @@
 
         .lb-session {
           padding: 7px 0;
-          font-size: 0.7rem;
+          font-size: 0.68rem;
+        }
+
+        .lb-session-date {
+          white-space: normal !important;
+          line-height: 1.15;
+          overflow: visible !important;
+          text-overflow: clip !important;
         }
 
         .lb-session strong {
@@ -1464,6 +1471,48 @@
         font-size: 0.76rem;
         font-weight: 700;
         text-align: center;
+      }
+
+      .history-page-select-wrap {
+        display: block;
+        width: 132px;
+        min-width: 132px;
+        margin: 0;
+      }
+
+      .history-page-select {
+        display: block;
+        width: 132px !important;
+        min-width: 132px !important;
+        max-width: 132px;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 8px 28px 8px 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: visible;
+      }
+
+      @media (max-width: 480px) {
+        .history-pagination {
+          gap: 8px;
+        }
+
+        .history-page-select-wrap,
+        .history-page-select {
+          width: 138px !important;
+          min-width: 138px !important;
+          max-width: 138px;
+          flex: 0 0 138px;
+        }
+
+        .history-pagination .ghost.small {
+          padding-left: 9px;
+          padding-right: 9px;
+          white-space: nowrap;
+        }
       }
 
 
@@ -2030,8 +2079,22 @@
           height: 27px;
         }
         .compact-game-row.editing {
-          grid-template-columns: minmax(42px, 1fr) 60px 60px 60px 58px;
-          gap: 3px;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 8px;
+        }
+
+        .compact-game-row.editing .editing-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 14px;
+          padding-right: 2px;
+        }
+
+        .compact-game-row.editing .editing-actions .done-icon,
+        .compact-game-row.editing .editing-actions .remove-icon {
+          width: 32px;
+          height: 32px;
+          flex-basis: 32px;
         }
       }
 
@@ -2354,9 +2417,31 @@
       }
 
       .editing-actions {
+        grid-column: 1 / -1;
         display: flex;
         justify-content: flex-end;
-        gap: 5px;
+        align-items: center;
+        gap: 14px;
+        padding: 2px 2px 2px 10px;
+      }
+
+      /* Keep the explicit save fallback compact; blur/outside-tap is the
+         primary save interaction. The larger text button is intentionally
+         removed so it cannot compete with the destructive action. */
+      .editing-actions .done-icon,
+      .editing-actions .remove-icon {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+      }
+
+      .editing-actions .done-icon {
+        padding: 0;
+        font-weight: 800;
+      }
+
+      .editing-actions .done-icon span {
+        display: none;
       }
 
       .editing-fields {
@@ -3205,6 +3290,11 @@
               Select or create a group before starting a game.
             </div>
 
+            <div id="gameInitialLoading" class="empty-workspace">
+              <p class="empty-workspace-title">Checking current game…</p>
+              <p>Loading this group’s live table.</p>
+            </div>
+
             <div id="noLiveGameMessage" class="empty-workspace hidden">
               <p class="empty-workspace-title" id="noLiveGameTitle">
                 No game in progress
@@ -3263,7 +3353,7 @@
               </dl>
 
               <div class="panel-section" id="gameSetupSection">
-                <div class="game-setup-header section-head">
+                <div class="game-setup-header section-head" id="gameSetupHeader">
                   <div class="game-setup-heading">
                     <h3>Game setup</h3>
                     <div class="game-setup-summary hidden" id="gameSetupSummary">
@@ -3608,6 +3698,7 @@
       let activeGameStatus = "draft";
       let noLiveGameReason = null;
       let gameSubscription = null;
+      let groupGameSubscription = null;
       let leaderboardStartDate = "";
       let leaderboardEndDate = "";
       let expandedLeaderboardPlayerId = null;
@@ -4035,10 +4126,22 @@
       game ending while they were watching, the one case where they were looking
       at a table a moment ago and need to be told where it went.
     */
+      function showGameStateLoading() {
+        document.getElementById("gameInitialLoading").classList.remove("hidden");
+        document.getElementById("gameWorkspace").classList.add("hidden");
+        document.getElementById("noLiveGameMessage").classList.add("hidden");
+        document.getElementById("noGroupGameMessage").classList.add("hidden");
+      }
+
+      function finishGameStateLoading() {
+        document.getElementById("gameInitialLoading").classList.add("hidden");
+      }
+
       function showNoLiveGame(reason = "none") {
         const closed = reason === "closed";
 
         noLiveGameReason = reason;
+        finishGameStateLoading();
 
         document.getElementById("gameWorkspace").classList.add("hidden");
         document.getElementById("noLiveGameMessage").classList.remove("hidden");
@@ -4066,6 +4169,7 @@
 
       function hideNoLiveGame() {
         noLiveGameReason = null;
+        finishGameStateLoading();
         document.getElementById("noLiveGameMessage").classList.add("hidden");
 
         // A newly started game must reveal the complete game block. Without
@@ -4146,6 +4250,7 @@
 
         authMessage.textContent = "";
         showPanel("gamePanel");
+        showGameStateLoading();
         await loadGroups();
       }
 
@@ -4639,6 +4744,7 @@
 
       async function groupChanged() {
         noLiveGameReason = null;
+        showGameStateLoading();
         resetActiveGameState();
 
         if (!selectedGroupId) {
@@ -4653,6 +4759,8 @@
           renderHistory([]);
           renderLeaderboard([]);
           updateSelectedGroupLabels();
+          finishGameStateLoading();
+          document.getElementById("noGroupGameMessage").classList.remove("hidden");
           return;
         }
 
@@ -4660,6 +4768,7 @@
         loadDraft();
         await loadHistory();
         await loadLeaderboard();
+        subscribeToGroupGames(selectedGroupId);
         showPanel("gamePanel");
         await loadCurrentLiveGame();
         updateSelectedGroupLabels();
@@ -4997,7 +5106,7 @@
                   aria-label="Save changes for ${escapeHtml(entry.name)}"
                   data-done-entry="${entry.playerId}"
                 >
-                  ${ICON_CHECK}
+                  ${ICON_CHECK}<span>Save changes</span>
                 </button>
 
                 <button
@@ -5041,7 +5150,7 @@
                     value="${
                       Number(entry.cashout || 0) === 0 ? "" : entry.cashout
                     }"
-                    placeholder="Enter cash-out"
+                    placeholder="$$"
                     data-entry-id="${entry.playerId}"
                     data-field="cashout"
                   />
@@ -5177,11 +5286,29 @@
   `;
       }
 
+      function gameSettlementSignature() {
+        return JSON.stringify(
+          gameEntries
+            .map((entry) => ({
+              playerId: entry.playerId,
+              buyin: toNumber(entry.buyin),
+              cashout: toNumber(entry.cashout),
+            }))
+            .sort((a, b) => String(a.playerId).localeCompare(String(b.playerId))),
+        );
+      }
+
       function updateGameTotals() {
         updateBalanceDisplay();
 
-        // Any change to the table invalidates the payment list, including a
-        // group switch, which resets the form through this same path.
+        // Realtime save echoes can cause the same table data to be rendered
+        // again immediately after Settle. Keep a valid settlement visible when
+        // the underlying amounts have not changed; clear it only when the
+        // actual settlement inputs change.
+        if (settlementShown && settlementSourceSignature === gameSettlementSignature()) {
+          return;
+        }
+
         clearSettlement("stale");
       }
 
@@ -5331,6 +5458,7 @@
 
       let settlementShown = false;
       let settlementText = "";
+      let settlementSourceSignature = null;
 
       // A settlement is only valid for the exact amounts it was calculated
       // from, so it is cleared rather than left on screen as stale payment
@@ -5352,6 +5480,7 @@
 
         settlementShown = false;
         settlementText = "";
+        settlementSourceSignature = null;
 
         // Silently blanking a list the host just read would be confusing, so
         // an expired settlement says why it went away.
@@ -5375,6 +5504,7 @@
 
         settlementShown = false;
         settlementText = "";
+        settlementSourceSignature = null;
 
         if (payments === null) {
           container.innerHTML = `
@@ -5398,6 +5528,7 @@
         `;
           settlementShown = true;
           settlementText = "Everyone is even. No payments are needed.";
+          settlementSourceSignature = gameSettlementSignature();
           copySettlementActions.classList.remove("hidden");
           return;
         }
@@ -5453,12 +5584,17 @@
           .join("\n");
 
         settlementShown = true;
+        settlementSourceSignature = gameSettlementSignature();
         copySettlementActions.classList.remove("hidden");
       }
       function resetActiveGameState() {
         if (gameSubscription) {
           supabase.removeChannel(gameSubscription);
           gameSubscription = null;
+        }
+        if (groupGameSubscription) {
+          supabase.removeChannel(groupGameSubscription);
+          groupGameSubscription = null;
         }
 
         activeGameId = null;
@@ -6217,9 +6353,21 @@
                 Previous
               </button>
 
-              <span class="history-page-label">
-                Page ${historyPage} of ${totalPages}
-              </span>
+              <label class="history-page-select-wrap">
+                <span class="sr-only">History page</span>
+                <select
+                  class="history-page-select"
+                  id="historyPageSelect"
+                  aria-label="History page"
+                >
+                  ${Array.from({ length: totalPages }, (_, index) => {
+                    const page = index + 1;
+                    return `<option value="${page}" ${
+                      page === historyPage ? "selected" : ""
+                    }>Page ${page} of ${totalPages}</option>`;
+                  }).join("")}
+                </select>
+              </label>
 
               <button
                 type="button"
@@ -6496,10 +6644,10 @@
               <span class="lb-name-text">${escapeHtml(player.player_name)}</span>
               <span class="lb-summary">
                 <span class="lb-summary-line">
-                  Buy-ins: ${money(player.total_buyins)} · Cash-outs: ${money(player.total_cashouts)}
+                  Buy-ins: ${money(player.total_buyins)} · Games: ${games}
                 </span>
                 <span class="lb-summary-line">
-                  Games: ${games} · Avg: ${games > 0 ? money(net / games) : "—"}
+                  Cash-outs: ${money(player.total_cashouts)} · Avg: ${games > 0 ? money(net / games) : "—"}
                 </span>
               </span>
               <span class="lb-track"><span class="lb-bar ${netClass}" style="width:${width}%"></span></span>
@@ -7028,17 +7176,19 @@
         toggleHidden("clearGameButton", !editable);
         toggleHidden("gameActionBar", !editable);
 
-        // Members get the clean read-only Game / Date summary only. The host
-        // keeps the full Game setup form. The summary is intentionally plain
-        // text rather than boxed cards.
-        toggleHidden("gameSetupSection", !editable);
+        // Members get the same live player table and totals as the host, but
+        // without any editing controls. Only the host-only setup controls are
+        // hidden; the actual live game data must remain visible to everyone in
+        // the group.
+        toggleHidden("gameSetupHeader", !editable);
+        toggleHidden("gameSetupFields", !editable);
+        toggleHidden("gameSetupSection", false);
         toggleHidden("gameFactsRow", editable);
 
         if (!editable) updateGameFacts();
 
-        // Settlement is calculated on the host's machine when the host asks for
-        // it, so for a member this area can only ever show its own placeholder
-        // asking them to add players they cannot add.
+        // Settlement controls remain host-only. Members can still see the
+        // live player rows and totals above and receive realtime updates.
         toggleHidden("settlements", !editable);
 
         if (!editable) toggleHidden("copySettlementActions", true);
@@ -7090,6 +7240,37 @@
             </div>
           `;
         }
+      }
+
+      function subscribeToGroupGames(groupId) {
+        if (groupGameSubscription) {
+          supabase.removeChannel(groupGameSubscription);
+          groupGameSubscription = null;
+        }
+
+        if (!groupId) return;
+
+        groupGameSubscription = supabase
+          .channel(`poker-vault-group-games-${groupId}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "games",
+              filter: `group_id=eq.${groupId}`,
+            },
+            async (payload) => {
+              // A newly-created draft is the important case: members who were
+              // already sitting on the Game screen need to discover it without
+              // refreshing. Updates/deletes also keep the empty/closed state
+              // in sync when a host closes the game.
+              if (payload.eventType === "INSERT" || payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
+                await loadCurrentLiveGame();
+              }
+            },
+          )
+          .subscribe();
       }
 
       function subscribeToActiveGame(gameId) {
@@ -7248,6 +7429,8 @@
 
         if (error) {
           console.error("Could not load live game:", error);
+          finishGameStateLoading();
+          showNoLiveGame("none");
           return;
         }
 
@@ -7515,6 +7698,68 @@
           addGamePlayer();
         });
 
+      async function saveEditingEntry(playerId) {
+        const entry = gameEntries.find((item) => item.playerId === playerId);
+
+        if (!entry || !canEditActiveGame()) return false;
+
+        const rawBuyin = String(entry.pendingBuyin ?? "").trim();
+        const amount = Number.parseFloat(rawBuyin);
+
+        if (
+          rawBuyin !== "" &&
+          (!Number.isFinite(amount) || amount <= 0)
+        ) {
+          showToast("Enter an additional buy-in greater than $0.", "error");
+          return false;
+        }
+
+        const rawCashout = String(entry.cashout ?? "").trim();
+        const cashoutAmount = Number.parseFloat(rawCashout);
+
+        if (
+          rawCashout !== "" &&
+          (!Number.isFinite(cashoutAmount) || cashoutAmount < 0)
+        ) {
+          showToast("Enter a valid cash-out amount.", "error");
+          return false;
+        }
+
+        if (Number.isFinite(amount) && amount > 0) {
+          if (!currentGameId) {
+            const gameId = await saveGame(false);
+            if (!gameId) return false;
+          }
+
+          const { error } = await supabase
+            .from("game_buyin_transactions")
+            .insert({
+              game_id: currentGameId,
+              group_player_id: playerId,
+              amount,
+            });
+
+          if (error) {
+            console.error(error);
+            showToast(`Could not save buy-in: ${error.message}`, "error");
+            return false;
+          }
+
+          await loadBuyinTransactions(currentGameId);
+        }
+
+        entry.pendingBuyin = "";
+        entry.isEditing = false;
+
+        await saveGame(false);
+        renderGameEntries();
+        updateGameTotals();
+        saveDraft();
+        markDraftSaved();
+        showToast("Player amounts saved.", "success");
+        return true;
+      }
+
       document
         .getElementById("gameEntries")
         .addEventListener("input", (event) => {
@@ -7559,6 +7804,35 @@
             updateGameTotals();
             saveDraft();
           }
+        });
+
+      // Save when focus leaves the whole editing row. Moving between Buy-in
+      // and Cash-out stays inside the row; tapping elsewhere commits changes.
+      document
+        .getElementById("gameEntries")
+        .addEventListener("focusout", (event) => {
+          const input = event.target.closest(
+            "input[data-entry-id][data-field]",
+          );
+
+          if (!input) return;
+
+          const row = input.closest(".compact-game-row.editing");
+          if (!row) return;
+
+          window.setTimeout(() => {
+            // If the row was re-rendered because the user tapped another
+            // player's edit button, it is already detached; that is still an
+            // outside interaction and must commit the old player's values.
+            const activeElement = document.activeElement;
+            if (row.isConnected && activeElement && row.contains(activeElement)) {
+              return;
+            }
+
+            saveEditingEntry(input.dataset.entryId).catch((error) => {
+              console.error("Could not auto-save player amounts:", error);
+            });
+          }, 0);
         });
 
       // document.getElementById("gameEntries").addEventListener("change", event => {
@@ -7689,60 +7963,29 @@
           }
 
           if (donePlayerId) {
-            const entry = gameEntries.find(
-              (item) => item.playerId === donePlayerId,
-            );
-
-            if (!entry) return;
-
-            const rawBuyin = String(entry.pendingBuyin ?? "").trim();
-            const amount = Number.parseFloat(rawBuyin);
-
-            if (rawBuyin !== "" && (!Number.isFinite(amount) || amount <= 0)) {
-              showToast("Enter an additional buy-in greater than $0.", "error");
-              return;
-            }
-
-            if (Number.isFinite(amount) && amount > 0) {
-              if (!currentGameId) {
-                const gameId = await saveGame(false);
-
-                if (!gameId) return;
-              }
-
-              const { error } = await supabase
-                .from("game_buyin_transactions")
-                .insert({
-                  game_id: currentGameId,
-                  group_player_id: donePlayerId,
-                  amount,
-                });
-
-              if (error) {
-                console.error(error);
-                showToast(`Could not save buy-in: ${error.message}`, "error");
-                return;
-              }
-
-              await loadBuyinTransactions(currentGameId);
-            }
-
-            gameEntries = gameEntries.map((item) => ({
-              ...item,
-              pendingBuyin: "",
-              isEditing: false,
-            }));
-
-            await saveGame(false);
-            renderGameEntries();
-            updateGameTotals();
-            saveDraft();
-            markDraftSaved();
-            showToast("Player amounts saved.", "success");
+            await saveEditingEntry(donePlayerId);
             return;
           }
 
           if (removePlayerId) {
+            const entry = gameEntries.find(
+              (item) => item.playerId === removePlayerId,
+            );
+
+            if (!entry) return;
+
+            const buyinTotal = toNumber(entry.buyin);
+            if (buyinTotal > 0) {
+              const confirmed = await confirmModal({
+                title: `Remove ${entry.name} from this game?`,
+                body: `${entry.name} already has ${money(buyinTotal)} in buy-ins. Removing the player will also remove those recorded buy-ins from this live game.`,
+                confirmLabel: "Remove player",
+                tone: "danger",
+              });
+
+              if (!confirmed) return;
+            }
+
             if (currentGameId) {
               const { error } = await supabase
                 .from("game_buyin_transactions")
@@ -7820,12 +8063,12 @@
       });
 document
         .getElementById("calculateButton")
-        .addEventListener("click", async () => {
-          const gameId = await saveGame(false);
-
-          if (gameId) {
-            showSettlement();
-          }
+        .addEventListener("click", () => {
+          // Settle is a calculation, not a save operation. Saving here can
+          // trigger Supabase realtime refreshes while the settlement is being
+          // rendered, causing it to flash and disappear. Amount changes are
+          // persisted by the normal save/autosave flow.
+          showSettlement();
         });
 
       document
@@ -7910,6 +8153,17 @@ document
           historyPage += 1;
         }
 
+        applyHistoryFilters(false);
+      });
+
+      document.getElementById("gameHistory")?.addEventListener("change", (event) => {
+        const select = event.target.closest("#historyPageSelect");
+        if (!select) return;
+
+        const page = Number(select.value);
+        if (!Number.isInteger(page) || page < 1) return;
+
+        historyPage = page;
         applyHistoryFilters(false);
       });
 
