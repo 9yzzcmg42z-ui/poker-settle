@@ -1473,48 +1473,6 @@
         text-align: center;
       }
 
-      .history-page-select-wrap {
-        display: block;
-        width: 132px;
-        min-width: 132px;
-        margin: 0;
-      }
-
-      .history-page-select {
-        display: block;
-        width: 132px !important;
-        min-width: 132px !important;
-        max-width: 132px;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 8px 28px 8px 10px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        line-height: 1.2;
-        white-space: nowrap;
-        overflow: visible;
-      }
-
-      @media (max-width: 480px) {
-        .history-pagination {
-          gap: 8px;
-        }
-
-        .history-page-select-wrap,
-        .history-page-select {
-          width: 138px !important;
-          min-width: 138px !important;
-          max-width: 138px;
-          flex: 0 0 138px;
-        }
-
-        .history-pagination .ghost.small {
-          padding-left: 9px;
-          padding-right: 9px;
-          white-space: nowrap;
-        }
-      }
-
 
       @media (max-width: 640px) {
         .history-filter-row { grid-template-columns: 1fr 1fr; }
@@ -3172,6 +3130,365 @@
         background: var(--red-soft);
       }
 
+
+      #adminConsoleButton.hidden { display: none !important; }
+      .workspace-tab[hidden], .workspace-panel[hidden] { display: none !important; }
+
+      .group-users-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .group-users-table {
+        width: 100%;
+        min-width: 720px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--surface);
+        overflow: hidden;
+      }
+      .group-users-table th,
+      .group-users-table td {
+        padding: 11px 13px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: middle;
+      }
+      .group-users-table th {
+        background: var(--surface-2);
+        color: var(--muted);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+      }
+      .group-users-table tr:last-child td { border-bottom: 0; }
+      .group-user-email { overflow-wrap: anywhere; }
+      .group-role-badge,
+      .app-role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 28px;
+        padding: 4px 9px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: .76rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .group-role-owner { border-color: #d6b36b; }
+      .app-role-super { border-color: #b89ad6; }
+      .app-role-admin { border-color: #9bb9d8; }
+      .role-legend {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0 0 14px;
+      }
+      .role-legend > div {
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface-2);
+      }
+      .role-legend strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: .8rem;
+      }
+      .role-legend span {
+        display: block;
+        color: var(--muted);
+        font-size: .74rem;
+        line-height: 1.4;
+      }
+      @media (max-width: 700px) {
+        .role-legend { grid-template-columns: 1fr; }
+      }
+
+#adminConsoleSection.hidden { display: none !important; }
+      @media (max-width: 560px) {
+        #leaderboardPanel .leaderboard-insights {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+          gap: 8px;
+        }
+
+        #leaderboardPanel .leaderboard-insight {
+          min-width: 0;
+          width: 100%;
+          padding: 10px 9px;
+        }
+
+        #leaderboardPanel .leaderboard-insight strong {
+          font-size: 0.82rem;
+          white-space: nowrap;
+        }
+      }
+      @media (max-width: 560px) {
+        #adminConsoleCard .admin-list,
+        #adminConsoleCard .admins-list,
+        #adminConsoleCard .admin-users-list {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 6px;
+          max-height: none;
+          overflow: visible;
+        }
+
+        #adminConsoleCard .admin-row,
+        #adminConsoleCard .admin-user-row,
+        #adminConsoleCard .admin-item {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          min-height: 0;
+        }
+
+        #adminConsoleCard .admin-row button,
+        #adminConsoleCard .admin-user-row button,
+        #adminConsoleCard .admin-item button {
+          white-space: nowrap;
+          padding: 7px 9px;
+          font-size: 0.78rem;
+        }
+
+        #adminConsoleCard .admin-email,
+        #adminConsoleCard .admin-user-email,
+        #adminConsoleCard .admin-item-email {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        #adminConsoleCard .admin-role {
+          white-space: nowrap;
+        }
+      }
+      @media (max-width: 560px) {
+        #adminConsoleCard .panel-title-row {
+          margin-bottom: 8px;
+        }
+
+        #adminConsoleCard .subtitle {
+          font-size: 0.78rem;
+          line-height: 1.25;
+        }
+
+        #adminConsoleCard {
+          padding: 12px;
+        }
+      }
+      @media (max-width: 560px) {
+        /* Admin Console is a compact, self-contained table on mobile.
+           Unlike the group Users table, it must never force horizontal
+           scrolling. */
+        #adminConsoleSection #adminConsoleList .group-users-table-wrap {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-users-table {
+          width: 100%;
+          min-width: 0;
+          max-width: 100%;
+          table-layout: fixed;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-users-table th,
+        #adminConsoleSection #adminConsoleList .group-users-table td {
+          padding: 8px 7px;
+          overflow: hidden;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-users-table th:nth-child(1),
+        #adminConsoleSection #adminConsoleList .group-users-table td:nth-child(1) {
+          width: 50%;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-users-table th:nth-child(2),
+        #adminConsoleSection #adminConsoleList .group-users-table td:nth-child(2) {
+          width: 25%;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-users-table th:nth-child(3),
+        #adminConsoleSection #adminConsoleList .group-users-table td:nth-child(3) {
+          width: 25%;
+        }
+
+        #adminConsoleSection #adminConsoleList .group-user-email {
+          white-space: normal;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        #adminConsoleSection #adminConsoleList .app-role-badge {
+          max-width: 100%;
+          white-space: normal;
+          line-height: 1.15;
+          padding: 4px 6px;
+          font-size: .68rem;
+        }
+
+        #adminConsoleSection #adminConsoleList .small {
+          max-width: 100%;
+          padding: 6px 5px;
+          font-size: .68rem;
+          white-space: normal;
+          line-height: 1.15;
+        }
+      }
+
+      .admin-console-role-mobile { display: none; }
+
+      @media (max-width: 560px) {
+        #adminConsoleSection .admin-console-table-wrap {
+          overflow-x: hidden;
+        }
+
+        #adminConsoleSection .admin-console-table {
+          min-width: 0;
+          width: 100%;
+          table-layout: fixed;
+        }
+
+        #adminConsoleSection .admin-console-table thead {
+          display: none;
+        }
+
+        #adminConsoleSection .admin-console-table tbody,
+        #adminConsoleSection .admin-console-table tr,
+        #adminConsoleSection .admin-console-table td {
+          display: block;
+          width: 100%;
+        }
+
+        #adminConsoleSection .admin-console-table tr {
+          position: relative;
+          padding: 10px 8px;
+          border-bottom: 1px solid var(--line);
+        }
+
+        #adminConsoleSection .admin-console-table tr:last-child {
+          border-bottom: 0;
+        }
+
+        #adminConsoleSection .admin-console-table td {
+          border: 0;
+          padding: 0;
+        }
+
+        #adminConsoleSection .admin-console-table .admin-console-user {
+          padding-right: 112px;
+          overflow: visible;
+        }
+
+        #adminConsoleSection .admin-console-table .admin-console-user strong {
+          display: block;
+          font-size: .84rem;
+          line-height: 1.25;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        #adminConsoleSection .admin-console-role-mobile {
+          display: block;
+          margin-top: 3px;
+          border: 0;
+          padding: 0;
+          color: var(--muted);
+          font-size: .72rem;
+          font-weight: 600;
+          line-height: 1.2;
+        }
+
+        #adminConsoleSection .admin-console-role-desktop {
+          display: none;
+        }
+
+        #adminConsoleSection .admin-console-action {
+          position: absolute;
+          top: 50%;
+          right: 8px;
+          width: auto;
+          transform: translateY(-50%);
+        }
+
+        #adminConsoleSection .admin-console-action .small {
+          white-space: nowrap;
+          padding: 6px 8px;
+          font-size: .68rem;
+        }
+      }
+
+      @media (max-width: 560px) {
+        /* Leaderboard filters: keep each field on its own row so the date
+           controls never overlap. Keep Apply + All time together below. */
+        #leaderboardPanel .filter-bar {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 9px;
+          width: 100%;
+        }
+
+        #leaderboardPanel .filter-bar .filter-field {
+          width: 100%;
+          min-width: 0;
+        }
+
+        #leaderboardPanel .filter-bar .filter-field label {
+          display: block;
+          margin-bottom: 4px;
+        }
+
+        #leaderboardPanel .filter-bar .filter-field input {
+          display: block;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
+        #leaderboardPanel #applyLeaderboardFilterButton,
+        #leaderboardPanel #clearLeaderboardFilterButton {
+          width: auto;
+          min-width: 0;
+          white-space: nowrap;
+        }
+
+        #leaderboardPanel #applyLeaderboardFilterButton {
+          grid-column: 1;
+          margin-top: 2px;
+        }
+
+        #leaderboardPanel #clearLeaderboardFilterButton {
+          grid-column: 1;
+          margin-top: -2px;
+        }
+
+        /* Put the two action buttons on the same row. */
+        #leaderboardPanel .filter-bar {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+
+        #leaderboardPanel .filter-bar .filter-field {
+          grid-column: 1 / -1;
+        }
+
+        #leaderboardPanel #applyLeaderboardFilterButton {
+          grid-column: 1;
+        }
+
+        #leaderboardPanel #clearLeaderboardFilterButton {
+          grid-column: 2;
+        }
+      }
 </style>
   </head>
 
@@ -3206,8 +3523,11 @@
             </button>
             <div class="banner-menu-popover hidden" id="bannerMenu">
               <div class="banner-menu-user" id="signedInEmail"></div>
-              <button type="button" class="banner-menu-item" id="manageGroupsButton">
+              <button type="button" class="banner-menu-item hidden" id="manageGroupsButton">
                 <span>Manage groups</span><span aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="banner-menu-item hidden" id="adminConsoleButton">
+                <span>Admin Console</span><span aria-hidden="true">→</span>
               </button>
               <button type="button" class="banner-menu-item banner-menu-signout" id="signOutButton">
                 <span>Sign out</span><span aria-hidden="true">↗</span>
@@ -3317,6 +3637,7 @@
                 <button
                   type="button"
                   class="secondary"
+                  id="noLiveHistoryButton"
                   data-panel-link="historyPanel"
                 >
                   View history
@@ -3325,6 +3646,7 @@
                 <button
                   type="button"
                   class="secondary"
+                  id="noLiveLeaderboardButton"
                   data-panel-link="leaderboardPanel"
                 >
                   View leaderboard
@@ -3568,6 +3890,18 @@
                 <input id="leaderboardEndDate" type="date" />
               </div>
 
+              <div class="filter-field">
+                <label for="leaderboardMinGames">Minimum games</label>
+                <input
+                  id="leaderboardMinGames"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="All"
+                />
+              </div>
+
               <button class="secondary" id="applyLeaderboardFilterButton">
                 Apply
               </button>
@@ -3627,7 +3961,7 @@
         </div>
 
         <div class="section-head">
-          <h3>Your groups</h3>
+          <h3 id="managedGroupsHeading">Your groups</h3>
         </div>
 
         <div id="ownedGroupsList">
@@ -3667,7 +4001,54 @@
           </div>
         </div>
 
+        <div class="group-users-section hidden" id="groupUsersSection">
+          <div class="section-head">
+            <div>
+              <h3 id="manageUsersTitle">Group users</h3>
+              <p class="subtitle" id="manageUsersSubtitle">
+                Accounts that can access this group. Player roster names are separate.
+              </p>
+            </div>
+            <span class="group-chip" id="manageUsersGroupChip">No group selected</span>
+          </div>
+          <div id="groupUsersList">
+            <p class="empty">Select a group to view its users.</p>
+          </div>
+        </div>
+
         <p id="groupMessage" class="empty" style="margin-top: 16px"></p>
+
+        <div class="group-users-section hidden" id="adminConsoleSection">
+          <div class="section-head">
+            <div>
+              <h3>PokerVault Admins</h3>
+              <p class="subtitle">
+                Global PokerVault permissions. Group ownership is shown separately inside each group's Users view.
+              </p>
+            </div>
+            <span class="group-chip">Global</span>
+          </div>
+
+          <div class="role-legend">
+            <div>
+              <strong>👑 Group Owner</strong>
+              <span>Owns and manages one specific poker group.</span>
+            </div>
+            <div>
+              <strong>Admin</strong>
+              <span>Has PokerVault-wide administrative access.</span>
+            </div>
+            <div>
+              <strong>Super Admin</strong>
+              <span>Full PokerVault access, including Admin management.</span>
+            </div>
+          </div>
+
+          <div id="adminConsoleList">
+            <p class="empty">Loading admins…</p>
+          </div>
+        </div>
+
       </section>
 
       <div class="toast-region" id="toastRegion" aria-live="polite"></div>
@@ -3685,6 +4066,7 @@
       const DRAFT_KEY = "poker-settle-game-draft";
 
       let currentUser = null;
+      let currentAppRole = "member";
       let groups = [];
       let roster = [];
       let selectedGroupId =
@@ -3701,6 +4083,7 @@
       let groupGameSubscription = null;
       let leaderboardStartDate = "";
       let leaderboardEndDate = "";
+      let leaderboardMinGames = 0;
       let expandedLeaderboardPlayerId = null;
       let draftDirty = false;
       let lastSavedAt = null;
@@ -4081,6 +4464,90 @@
         return code;
       }
 
+      function isGroupOwner(groupId) {
+      if (!currentUser || !groupId) return false;
+      const group = groups.find(g => g.id === groupId);
+      return Boolean(group && group.owner_id === currentUser.id);
+    }
+
+    function isSuperAdmin() {
+        return currentAppRole === "super_admin";
+      }
+
+      function isAppAdmin() {
+        return isSuperAdmin() || currentAppRole === "admin";
+      }
+
+      async function loadAppRole() {
+        currentAppRole = "member";
+
+        if (!currentUser) return;
+
+        const { data, error } = await supabase
+          .from("poker_user_roles")
+          .select("role")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        if (error) {
+          console.warn("Could not load PokerVault role:", error.message);
+          return;
+        }
+
+        currentAppRole = data?.role || "member";
+      }
+
+      function updateRoleVisibility() {
+        const privileged = isAppAdmin();
+        const superAdmin = isSuperAdmin();
+        const ownsAnyGroup = Boolean(
+          currentUser && groups.some((group) => group.owner_id === currentUser.id)
+        );
+
+        document.getElementById("adminConsoleButton")?.classList.toggle("hidden", !isSuperAdmin());
+        document.getElementById("adminConsoleSection")?.classList.toggle("hidden", !superAdmin);
+        document.getElementById("manageGroupsButton")?.classList.toggle(
+          "hidden",
+          !(superAdmin || ownsAnyGroup)
+        );
+
+        const groupAdmin = isGroupAdmin();
+
+        document.querySelectorAll('[data-requires-admin]').forEach((element) => {
+          element.classList.toggle("hidden", !privileged);
+        });
+
+        // History and Leaderboard are available to app admins and the existing
+        // group owner/host experience, but regular members get the live game.
+        const canViewHistoricalData = privileged || groupAdmin;
+
+        // Regular members should see only the live-game experience when no
+        // game is running: Start a game, or the live table if one exists.
+        document
+          .getElementById("noLiveHistoryButton")
+          ?.classList.toggle("hidden", !canViewHistoricalData);
+
+        document
+          .getElementById("noLiveLeaderboardButton")
+          ?.classList.toggle("hidden", !canViewHistoricalData);
+
+        document.querySelectorAll('[data-panel="rosterPanel"], [data-panel="historyPanel"], [data-panel="leaderboardPanel"]').forEach((button) => {
+          button.classList.toggle("hidden", !canViewHistoricalData);
+          button.hidden = !canViewHistoricalData;
+        });
+
+        const historyPanel = document.getElementById("historyPanel");
+        const leaderboardPanel = document.getElementById("leaderboardPanel");
+        const rosterPanel = document.getElementById("rosterPanel");
+        [historyPanel, leaderboardPanel, rosterPanel].forEach((panel) => {
+          if (!panel) return;
+          panel.classList.toggle("hidden", !canViewHistoricalData);
+          panel.hidden = !canViewHistoricalData;
+        });
+
+        if (!canViewHistoricalData) showPanel("gamePanel");
+      }
+
       function selectedGroup() {
         return groups.find((group) => group.id === selectedGroupId) || null;
       }
@@ -4195,12 +4662,19 @@
           button.classList.toggle("active", button.dataset.panel === panelId);
         });
 
-        if (panelId === "historyPanel") loadHistory();
-        if (panelId === "leaderboardPanel") loadLeaderboard();
+        if (panelId === "historyPanel") {
+          if (isAppAdmin() || isGroupAdmin()) loadHistory();
+          else { showPanel("gamePanel"); return; }
+        }
+        if (panelId === "leaderboardPanel") {
+          if (isAppAdmin() || isGroupAdmin()) loadLeaderboard();
+          else { showPanel("gamePanel"); return; }
+        }
       }
 
       function updateAuthLayout() {
         const signedIn = Boolean(currentUser);
+        document.getElementById("adminConsoleSection")?.classList.add("hidden");
 
         document
           .getElementById("authCard")
@@ -4249,9 +4723,14 @@
           currentUser.email;
 
         authMessage.textContent = "";
+        await loadAppRole();
         showPanel("gamePanel");
         showGameStateLoading();
         await loadGroups();
+        // Group ownership is known only after groups are loaded. Re-apply
+        // visibility so owners/admins get their permitted tabs while regular
+        // members remain on the Live Game view only.
+        updateRoleVisibility();
       }
 
       async function signUp() {
@@ -4331,10 +4810,16 @@
       }
 
       async function loadGroups() {
-        const { data, error } = await supabase
-          .from("poker_groups")
-          .select("id, name, join_code, owner_id, created_at")
-          .order("created_at", { ascending: false });
+        let data;
+        let error;
+
+        if (isSuperAdmin()) {
+          ({ data, error } = await supabase.rpc("get_all_poker_groups_for_super_admin"));
+        } else {
+          ({ data, error } = await supabase.rpc(
+            "get_poker_groups_for_current_user"
+          ));
+        }
 
         if (error) {
           console.error(error);
@@ -4359,6 +4844,7 @@
 
         renderGroups();
         await groupChanged();
+        updateRoleVisibility();
       }
 
       function renderGroups() {
@@ -4402,6 +4888,7 @@
 
         updateSelectedGroupLabels();
         renderOwnedGroups();
+        updateRoleVisibility();
       }
 
       function validateDefaultBuyin() {
@@ -4439,18 +4926,20 @@
           return;
         }
 
-        const ownedGroups = groups.filter(
-          (group) => group.owner_id === currentUser.id,
-        );
+        const managedGroups = isSuperAdmin()
+          ? groups
+          : groups.filter((group) => group.owner_id === currentUser.id);
+        const heading = document.getElementById("managedGroupsHeading");
+        if (heading) heading.textContent = isSuperAdmin() ? "All groups" : "Your groups";
 
-        if (ownedGroups.length === 0) {
+        if (managedGroups.length === 0) {
           container.innerHTML = `
-          <p class="empty">You do not own any groups yet.</p>
+          <p class="empty">No groups are available to manage.</p>
         `;
           return;
         }
 
-        container.innerHTML = ownedGroups
+        container.innerHTML = managedGroups
           .map(
             (group) => `
         <div class="owned-group-row">
@@ -4460,6 +4949,17 @@
           </div>
 
           <div class="owned-group-actions">
+            <button
+              type="button"
+              class="secondary small"
+              data-manage-users="${group.id}"
+            >
+              Users
+            </button>
+
+            ${
+              isSuperAdmin() || group.owner_id === currentUser.id
+                ? `
             <button
               type="button"
               class="secondary small"
@@ -4491,11 +4991,154 @@
             >
               Delete
             </button>
+                `
+                : ""
+            }
           </div>
         </div>
       `,
           )
           .join("");
+      }
+
+      async function openUsersManager(groupId, forceRefresh = false) {
+        const group = groups.find((item) => item.id === groupId);
+        if (!group) return;
+
+        const canManageUsers =
+          isSuperAdmin() || group.owner_id === currentUser?.id;
+
+        if (!canManageUsers) {
+          showToast("Only the group owner or Super Admin can view group users.", "error");
+          return;
+        }
+
+        const card = document.getElementById("groupManagementCard");
+        const usersSection = document.getElementById("groupUsersSection");
+        const rosterSection = document.getElementById("groupRosterSection");
+        const adminSection = document.getElementById("adminConsoleSection");
+
+        if (
+          !forceRefresh &&
+          selectedGroupId === groupId &&
+          !usersSection.classList.contains("hidden")
+        ) {
+          usersSection.classList.add("hidden");
+          return;
+        }
+
+        selectedGroupId = groupId;
+        localStorage.setItem("poker-settle-selected-group", selectedGroupId);
+        renderGroups();
+        updateSelectedGroupLabels();
+        rosterSection?.classList.add("hidden");
+        adminSection?.classList.add("hidden");
+        usersSection.classList.remove("hidden");
+        document.getElementById("manageUsersGroupChip").textContent = group.name;
+        document.getElementById("manageUsersTitle").textContent = `${group.name} users`;
+
+        const list = document.getElementById("groupUsersList");
+        list.innerHTML = '<p class="empty">Loading users…</p>';
+        card.classList.remove("hidden");
+
+        const { data, error } = await supabase.rpc("get_group_users_for_admin", {
+          p_group_id: groupId,
+        });
+
+        if (error) {
+          console.error(error);
+          list.innerHTML = `<p class="empty">Could not load users.</p>`;
+          showToast(`Could not load group users: ${error.message}`, "error");
+          return;
+        }
+
+        const users = Array.isArray(data) ? data : [];
+
+        if (!users.length) {
+          list.innerHTML = '<p class="empty">No user accounts are currently listed for this group.</p>';
+          return;
+        }
+
+        list.innerHTML = `
+          <div class="group-users-table-wrap">
+            <table class="group-users-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Group Role</th>
+                  <th>PokerVault Role</th>
+                  <th>Joined</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${users.map((user) => {
+                  const isOwner = user.user_id === group.owner_id;
+                  const appRole = user.role || "member";
+                  const roleLabel =
+                    appRole === "super_admin" ? "Super Admin" :
+                    appRole === "admin" ? "Admin" : "Member";
+                  const roleClass =
+                    appRole === "super_admin" ? "app-role-super" :
+                    appRole === "admin" ? "app-role-admin" : "";
+                  const joined = user.joined_at
+                    ? new Date(user.joined_at).toLocaleDateString()
+                    : "—";
+                  const canChangeRole =
+                    isSuperAdmin() &&
+                    user.user_id !== currentUser.id &&
+                    appRole !== "super_admin";
+
+                  const action =
+                    canChangeRole && appRole === "admin"
+                      ? `<button type="button" class="secondary small" data-remove-app-admin="${escapeHtml(user.user_id)}">Remove admin</button>`
+                      : canChangeRole && appRole === "member"
+                        ? `<button type="button" class="secondary small" data-make-app-admin="${escapeHtml(user.user_id)}">Make admin</button>`
+                        : "—";
+
+                  return `
+                    <tr>
+                      <td class="group-user-email"><strong>${escapeHtml(user.email || "Unknown email")}</strong></td>
+                      <td>
+                        ${isOwner
+                          ? '<span class="group-role-badge group-role-owner">👑 Group Owner</span>'
+                          : '<span class="group-role-badge">Member</span>'}
+                      </td>
+                      <td>
+                        <span class="app-role-badge ${roleClass}">${escapeHtml(roleLabel)}</span>
+                      </td>
+                      <td>${escapeHtml(joined)}</td>
+                      <td>${action}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        usersSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      async function setUserAdminRole(userId, makeAdmin) {
+        if (!isSuperAdmin()) {
+          showToast("Only the Super Admin can change admin access.", "error");
+          return;
+        }
+
+        const { error } = await supabase.rpc("set_poker_admin", {
+          p_user_id: userId,
+          p_make_admin: makeAdmin,
+        });
+
+        if (error) {
+          console.error(error);
+          showToast(`Could not update admin access: ${error.message}`, "error");
+          return;
+        }
+
+        showToast(makeAdmin ? "User is now an Admin." : "Admin access removed.", "success");
+        if (selectedGroupId) await openUsersManager(selectedGroupId, true);
       }
 
       async function openRosterManager(groupId) {
@@ -4524,6 +5167,7 @@
         updateSelectedGroupLabels();
 
         card.classList.remove("hidden");
+        document.getElementById("adminConsoleSection")?.classList.add("hidden");
         rosterSection?.classList.remove("hidden");
 
         rosterSection?.scrollIntoView({
@@ -4593,8 +5237,8 @@
       async function deleteOwnedGroup(groupId) {
         const group = groups.find((item) => item.id === groupId);
 
-        if (!group || group.owner_id !== currentUser?.id) {
-          showToast("Only the group owner can delete this group.", "error");
+        if (!group || (!isSuperAdmin() && group.owner_id !== currentUser?.id)) {
+          showToast("Only the group owner or Super Admin can delete this group.", "error");
           return;
         }
 
@@ -4607,11 +5251,16 @@
 
         if (!confirmed) return;
 
-        const { error } = await supabase
-          .from("poker_groups")
-          .delete()
-          .eq("id", groupId)
-          .eq("owner_id", currentUser.id);
+        let error;
+        if (isSuperAdmin()) {
+          ({ error } = await supabase.rpc("super_admin_delete_poker_group", { p_group_id: groupId }));
+        } else {
+          ({ error } = await supabase
+            .from("poker_groups")
+            .delete()
+            .eq("id", groupId)
+            .eq("owner_id", currentUser.id));
+        }
 
         if (error) {
           console.error(error);
@@ -4635,8 +5284,8 @@
       async function renameOwnedGroup(groupId) {
         const group = groups.find((item) => item.id === groupId);
 
-        if (!group || group.owner_id !== currentUser?.id) {
-          showToast("Only the group owner can rename this group.", "error");
+        if (!group || (!isSuperAdmin() && group.owner_id !== currentUser?.id)) {
+          showToast("Only the group owner or Super Admin can rename this group.", "error");
           return;
         }
 
@@ -4649,11 +5298,16 @@
 
         if (!name || name === group.name) return;
 
-        const { error } = await supabase
-          .from("poker_groups")
-          .update({ name })
-          .eq("id", groupId)
-          .eq("owner_id", currentUser.id);
+        let error;
+        if (isSuperAdmin()) {
+          ({ error } = await supabase.rpc("super_admin_rename_poker_group", { p_group_id: groupId, p_name: name }));
+        } else {
+          ({ error } = await supabase
+            .from("poker_groups")
+            .update({ name })
+            .eq("id", groupId)
+            .eq("owner_id", currentUser.id));
+        }
 
         if (error) {
           console.error(error);
@@ -4668,9 +5322,9 @@
       async function regenerateGroupCode(groupId) {
         const group = groups.find((item) => item.id === groupId);
 
-        if (!group || group.owner_id !== currentUser?.id) {
+        if (!group || (!isSuperAdmin() && group.owner_id !== currentUser?.id)) {
           showToast(
-            "Only the group owner can regenerate the join code.",
+            "Only the group owner or Super Admin can regenerate the join code.",
             "error",
           );
           return;
@@ -4684,11 +5338,17 @@
 
         if (!confirmed) return;
 
-        const { error } = await supabase
-          .from("poker_groups")
-          .update({ join_code: createJoinCode() })
-          .eq("id", groupId)
-          .eq("owner_id", currentUser.id);
+        const newCode = createJoinCode();
+        let error;
+        if (isSuperAdmin()) {
+          ({ error } = await supabase.rpc("super_admin_regenerate_poker_group_code", { p_group_id: groupId, p_join_code: newCode }));
+        } else {
+          ({ error } = await supabase
+            .from("poker_groups")
+            .update({ join_code: newCode })
+            .eq("id", groupId)
+            .eq("owner_id", currentUser.id));
+        }
 
         if (error) {
           console.error(error);
@@ -4764,14 +5424,25 @@
           return;
         }
 
+        // Regular members get the live game only. Do not load historical data for them.
+        const canViewHistoricalData = isAppAdmin() || isGroupAdmin();
+
         await loadRoster();
         loadDraft();
-        await loadHistory();
-        await loadLeaderboard();
+
+        if (canViewHistoricalData) {
+          await loadHistory();
+          await loadLeaderboard();
+        } else {
+          renderHistory([]);
+          renderLeaderboard([]);
+        }
+
         subscribeToGroupGames(selectedGroupId);
         showPanel("gamePanel");
         await loadCurrentLiveGame();
         updateSelectedGroupLabels();
+        updateRoleVisibility();
       }
 
       async function loadRoster() {
@@ -4782,15 +5453,14 @@
           return;
         }
 
-        const { data, error } = await supabase
-          .from("group_players")
-          .select("id, name, active, created_at")
-          .eq("group_id", selectedGroupId)
-          .eq("active", true)
-          .order("name", { ascending: true });
+        const { data, error } = await supabase.rpc(
+          "get_group_roster_for_admin",
+          { p_group_id: selectedGroupId }
+        );
 
         if (error) {
           console.error(error);
+          showToast(`Could not load roster: ${error.message}`, "error");
           return;
         }
 
@@ -4822,7 +5492,10 @@
         const rosterList = document.getElementById("rosterList");
         const adminControls = document.getElementById("adminRosterControls");
 
-        adminControls.classList.toggle("hidden", !isGroupAdmin());
+        adminControls.classList.toggle(
+          "hidden",
+          !(isSuperAdmin() || isGroupOwner(selectedGroupId))
+        );
 
         if (!selectedGroupId) {
           rosterList.innerHTML = `
@@ -4836,7 +5509,7 @@
           <p class="empty">
             No players in this roster yet.
             ${
-              isGroupAdmin()
+              (isGroupAdmin() || isSuperAdmin())
                 ? "Add the regular poker players above."
                 : "Ask the group admin to add players."
             }
@@ -4845,7 +5518,7 @@
           return;
         }
 
-        const admin = isGroupAdmin();
+        const canManageRoster = Boolean(isSuperAdmin() || isGroupOwner(selectedGroupId));
 
         rosterList.innerHTML = `
         <div class="section-head">
@@ -4865,7 +5538,7 @@
             )}</span>
             <span class="roster-name">${escapeHtml(player.name)}</span>
             ${
-              admin
+              canManageRoster
                 ? `<button
                    type="button"
                    class="ghost small roster-remove"
@@ -4884,8 +5557,8 @@
       }
 
       async function addRosterPlayer() {
-        if (!selectedGroupId || !isGroupAdmin()) {
-          showToast("Only the group admin can add players.", "error");
+        if (!selectedGroupId || (!isGroupAdmin() && !isSuperAdmin())) {
+          showToast("Only the group admin or Super Admin can add players.", "error");
           return;
         }
 
@@ -4897,9 +5570,9 @@
           return;
         }
 
-        const { error } = await supabase.from("group_players").insert({
-          group_id: selectedGroupId,
-          name,
+        const { error } = await supabase.rpc("add_group_player_for_admin", {
+          p_group_id: selectedGroupId,
+          p_name: name,
         });
 
         if (error) {
@@ -4912,13 +5585,14 @@
         }
 
         input.value = "";
+        showToast(`${escapeHtml(name)} added to the roster.`, "success");
         await loadRoster();
         await loadLeaderboard();
       }
 
       async function removeRosterPlayer(playerId) {
-        if (!isGroupAdmin()) {
-          showToast("Only the group admin can remove players.", "error");
+        if (!isGroupAdmin() && !isSuperAdmin()) {
+          showToast("Only the group admin or Super Admin can remove players.", "error");
           return;
         }
 
@@ -4933,10 +5607,15 @@
 
         if (!confirmed) return;
 
-        const { error } = await supabase
-          .from("group_players")
-          .update({ active: false })
-          .eq("id", playerId);
+        let error;
+        if (isSuperAdmin()) {
+          ({ error } = await supabase.rpc("super_admin_remove_group_player", { p_player_id: playerId }));
+        } else {
+          ({ error } = await supabase
+            .from("group_players")
+            .update({ active: false })
+            .eq("id", playerId));
+        }
 
         if (error) {
           showToast(`Could not remove player: ${error.message}`, "error");
@@ -5020,7 +5699,11 @@
         renderGamePlayerOptions();
         updateGameTotals();
         saveDraft();
-        const gameId = await saveGame(false);
+        // Do not reload the live game yet. The buy-in transaction is stored
+        // immediately below; reloading before that transaction exists makes
+        // loadBuyinTransactions temporarily calculate this player's buy-in as
+        // $0.00.
+        const gameId = await saveGame(false, false);
 
         if (gameId && defaultBuyin > 0) {
           const { error } = await supabase
@@ -5041,6 +5724,16 @@
           }
 
           await loadBuyinTransactions(gameId);
+        }
+
+        // Reload only after the initial buy-in transaction has been stored,
+        // so the player never flashes a $0.00 buy-in.
+        if (gameId) {
+          await loadCurrentLiveGame();
+        }
+
+        if (gameEntries.length === 1) {
+          setGameSetupCollapsed(true);
         }
 
       }
@@ -5781,7 +6474,7 @@
         showToast("Draft cleared.", "success");
       }
 
-      async function saveGame(closeGame = false) {
+      async function saveGame(closeGame = false, refreshLiveGame = true) {
         if (!selectedGroupId) {
           showToast("Choose a group first.", "warning");
           return null;
@@ -5924,7 +6617,11 @@
         if (!closeGame) {
           saveDraft();
           markDraftSaved();
-          await loadCurrentLiveGame();
+
+          if (refreshLiveGame) {
+            await loadCurrentLiveGame();
+          }
+
           return gameId;
         }
 
@@ -6353,21 +7050,9 @@
                 Previous
               </button>
 
-              <label class="history-page-select-wrap">
-                <span class="sr-only">History page</span>
-                <select
-                  class="history-page-select"
-                  id="historyPageSelect"
-                  aria-label="History page"
-                >
-                  ${Array.from({ length: totalPages }, (_, index) => {
-                    const page = index + 1;
-                    return `<option value="${page}" ${
-                      page === historyPage ? "selected" : ""
-                    }>Page ${page} of ${totalPages}</option>`;
-                  }).join("")}
-                </select>
-              </label>
+              <span class="history-page-label">
+                Page ${historyPage} of ${totalPages}
+              </span>
 
               <button
                 type="button"
@@ -6482,7 +7167,15 @@
           });
         });
 
-        const players = Array.from(totalsByPlayer.values())
+        // Minimum-games is an eligibility filter: a player must have
+        // participated in at least this many completed games within the
+        // selected date range. Their leaderboard totals still use ALL of
+        // their qualifying-period games, not just the minimum number.
+        const eligiblePlayers = Array.from(totalsByPlayer.values()).filter(
+          (player) => player.games_played >= leaderboardMinGames,
+        );
+
+        const players = eligiblePlayers
           .sort((a, b) => {
             if (b.net_result !== a.net_result) {
               return b.net_result - a.net_result;
@@ -6570,18 +7263,20 @@
         }
 
         if (players.length === 0) {
+          const hasMinimumGamesFilter = leaderboardMinGames > 0;
           container.innerHTML = `
           <p class="empty">
-            Add players and close completed games to build rankings.
+            ${
+              hasMinimumGamesFilter
+                ? `No players have at least ${leaderboardMinGames} completed games in the selected period.`
+                : "Add players and close completed games to build rankings."
+            }
           </p>
         `;
           return;
         }
 
         const mostProfitable = players[0];
-        const mostActive = [...players].sort(
-          (a, b) => b.games_played - a.games_played,
-        )[0];
 
         const bestSingleSession = [...players]
           .filter((player) => player.best_session !== null)
@@ -6594,14 +7289,6 @@
             <strong>
               ${escapeHtml(mostProfitable.player_name)} ·
               ${money(mostProfitable.net_result)}
-            </strong>
-          </div>
-
-          <div class="leaderboard-insight">
-            <span>Most games</span>
-            <strong>
-              ${escapeHtml(mostActive.player_name)} ·
-              ${mostActive.games_played}
             </strong>
           </div>
 
@@ -7088,7 +7775,9 @@
 
         if (gameError) {
           console.error(gameError);
+          finishGameStateLoading();
           showToast(`Could not load game: ${gameError.message}`, "error");
+          showNoLiveGame("none");
           return;
         }
 
@@ -7122,6 +7811,12 @@
         draftDirty = false;
         updateGamePermissions(game.status);
         updateGameMeta(game.status);
+
+        if (gameEntries.length > 0 && canEditActiveGame()) {
+          setGameSetupCollapsed(true);
+        }
+
+        finishGameStateLoading();
       }
 
       // Mirrors the host's game name and date as plain text for members.
@@ -7314,8 +8009,10 @@
             },
             async () => {
               await loadActiveGame(gameId);
-              await loadHistory();
-              await loadLeaderboard();
+              if (isAppAdmin() || isGroupAdmin()) {
+                await loadHistory();
+                await loadLeaderboard();
+              }
             },
           )
           .subscribe();
@@ -7329,6 +8026,7 @@
         showPanel("gamePanel");
 
         await loadActiveGame(gameId);
+        finishGameStateLoading();
         subscribeToActiveGame(gameId);
       }
 
@@ -7446,23 +8144,35 @@
 
         // A draft is the group's current game. Everyone lands in it;
         // permissions inside the game determine whether the user can edit it.
-        await openGameForViewing(liveGame.id);
+        try {
+          await openGameForViewing(liveGame.id);
+        } catch (error) {
+          console.error("Could not open live game:", error);
+          finishGameStateLoading();
+          showToast(
+            `Could not open live game: ${error?.message || "Unknown error"}`,
+            "error",
+          );
+          showNoLiveGame("none");
+        }
       }
 
       function leaderboardPeriodLabel() {
-        if (!leaderboardStartDate && !leaderboardEndDate) {
-          return "all completed games";
-        }
+        let period = "all completed games";
 
         if (leaderboardStartDate && leaderboardEndDate) {
-          return `games from ${leaderboardStartDate} through ${leaderboardEndDate}`;
+          period = `games from ${leaderboardStartDate} through ${leaderboardEndDate}`;
+        } else if (leaderboardStartDate) {
+          period = `games from ${leaderboardStartDate} onward`;
+        } else if (leaderboardEndDate) {
+          period = `games through ${leaderboardEndDate}`;
         }
 
-        if (leaderboardStartDate) {
-          return `games from ${leaderboardStartDate} onward`;
+        if (leaderboardMinGames > 0) {
+          return `${period}; players with at least ${leaderboardMinGames} games`;
         }
 
-        return `games through ${leaderboardEndDate}`;
+        return period;
       }
 
       function setGameSetupCollapsed(collapsed) {
@@ -7561,12 +8271,23 @@
         await signOut();
       });
 
+      document.getElementById("adminConsoleButton")?.addEventListener("click", async () => {
+        closeBannerMenu();
+        await openAdminConsole();
+      });
+
       document.getElementById("manageGroupsButton").addEventListener("click", () => {
+        if (!isSuperAdmin() && !groups.some((group) => group.owner_id === currentUser?.id)) {
+          closeBannerMenu();
+          return;
+        }
+        document.getElementById("adminConsoleSection")?.classList.add("hidden");
         closeBannerMenu();
         const card = document.getElementById("groupManagementCard");
         card.classList.toggle("hidden");
         if (!card.classList.contains("hidden")) {
           document.getElementById("groupRosterSection")?.classList.add("hidden");
+          document.getElementById("groupUsersSection")?.classList.add("hidden");
           card.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
@@ -7580,6 +8301,29 @@
 
           leaderboardEndDate =
             document.getElementById("leaderboardEndDate").value;
+
+          const minimumGamesRaw = document.getElementById(
+            "leaderboardMinGames",
+          ).value.trim();
+
+          if (minimumGamesRaw === "") {
+            leaderboardMinGames = 0;
+          } else {
+            const minimumGames = Number(minimumGamesRaw);
+
+            if (
+              !Number.isInteger(minimumGames) ||
+              minimumGames < 1
+            ) {
+              showToast(
+                "Minimum games must be a whole number of 1 or more.",
+                "warning",
+              );
+              return;
+            }
+
+            leaderboardMinGames = minimumGames;
+          }
 
           if (
             leaderboardStartDate &&
@@ -7598,9 +8342,11 @@
         .addEventListener("click", async () => {
           leaderboardStartDate = "";
           leaderboardEndDate = "";
+          leaderboardMinGames = 0;
 
           document.getElementById("leaderboardStartDate").value = "";
           document.getElementById("leaderboardEndDate").value = "";
+          document.getElementById("leaderboardMinGames").value = "";
 
           await loadLeaderboard();
         });
@@ -7615,6 +8361,8 @@
           document
             .getElementById("groupManagementCard")
             .classList.add("hidden");
+          document.getElementById("groupRosterSection")?.classList.add("hidden");
+          document.getElementById("groupUsersSection")?.classList.add("hidden");
         });
 
       document
@@ -7657,6 +8405,7 @@
 
           renderGroups();
           await groupChanged();
+          updateRoleVisibility();
         });
 
       document.querySelectorAll(".workspace-tab").forEach((button) => {
@@ -8017,6 +8766,22 @@
           }
         });
 
+      document
+        .getElementById("groupUsersList")
+        .addEventListener("click", async (event) => {
+          const makeAdminButton = event.target.closest("[data-make-app-admin]");
+          const removeAdminButton = event.target.closest("[data-remove-app-admin]");
+
+          if (makeAdminButton) {
+            await setUserAdminRole(makeAdminButton.dataset.makeAppAdmin, true);
+            return;
+          }
+
+          if (removeAdminButton) {
+            await setUserAdminRole(removeAdminButton.dataset.removeAppAdmin, false);
+          }
+        });
+
       document.getElementById("gameName").addEventListener("input", saveDraft);
 
       document.getElementById("gameDate").addEventListener("change", saveDraft);
@@ -8024,10 +8789,16 @@
       document
         .getElementById("ownedGroupsList")
         .addEventListener("click", async (event) => {
+          const usersButton = event.target.closest("[data-manage-users]");
           const rosterButton = event.target.closest("[data-manage-roster]");
           const deleteButton = event.target.closest("[data-delete-group]");
           const renameButton = event.target.closest("[data-rename-group]");
           const codeButton = event.target.closest("[data-regenerate-code]");
+
+          if (usersButton) {
+            await openUsersManager(usersButton.dataset.manageUsers);
+            return;
+          }
 
           if (rosterButton) {
             await openRosterManager(rosterButton.dataset.manageRoster);
@@ -8156,17 +8927,6 @@ document
         applyHistoryFilters(false);
       });
 
-      document.getElementById("gameHistory")?.addEventListener("change", (event) => {
-        const select = event.target.closest("#historyPageSelect");
-        if (!select) return;
-
-        const page = Number(select.value);
-        if (!Number.isInteger(page) || page < 1) return;
-
-        historyPage = page;
-        applyHistoryFilters(false);
-      });
-
       document.getElementById("historySearch")?.addEventListener("input", () => {
         clearTimeout(historyFilterDebounce);
         historyFilterDebounce = setTimeout(() => applyHistoryFilters(true), 120);
@@ -8174,6 +8934,92 @@ document
       document.getElementById("historyPlayerFilter")?.addEventListener("change", () => applyHistoryFilters(true));
       document.getElementById("historyDateFilter")?.addEventListener("change", () => applyHistoryFilters(true));
       document.getElementById("clearHistoryFiltersButton")?.addEventListener("click", clearHistoryFilters);
+
+
+      async function openAdminConsole() {
+        if (!currentUser || !isSuperAdmin()) {
+          document.getElementById("adminConsoleSection")?.classList.add("hidden");
+          showToast("Only the Super Admin can open Admin Console.", "error");
+          return;
+        }
+
+        const card = document.getElementById("groupManagementCard");
+        const usersSection = document.getElementById("groupUsersSection");
+        const rosterSection = document.getElementById("groupRosterSection");
+        const adminSection = document.getElementById("adminConsoleSection");
+        const list = document.getElementById("adminConsoleList");
+
+        card.classList.remove("hidden");
+        usersSection?.classList.add("hidden");
+        rosterSection?.classList.add("hidden");
+        adminSection?.classList.remove("hidden");
+        list.innerHTML = '<p class="empty">Loading admins…</p>';
+
+        const { data, error } = await supabase.rpc(
+          "get_all_poker_admins_for_super_admin"
+        );
+
+        if (error) {
+          console.error(error);
+          list.innerHTML = `<p class="empty">Could not load admins.</p>`;
+          showToast(`Could not load admins: ${error.message}`, "error");
+          return;
+        }
+
+        const admins = Array.isArray(data) ? data : [];
+
+        if (!admins.length) {
+          list.innerHTML = '<p class="empty">No Admin accounts are configured.</p>';
+          return;
+        }
+
+        list.innerHTML = `
+          <div class="group-users-table-wrap admin-console-table-wrap">
+            <table class="group-users-table admin-console-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>PokerVault Role</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${admins.map((user) => {
+                  const isMe = user.user_id === currentUser?.id;
+                  const role = user.role === "super_admin" ? "Super Admin" : "Admin";
+                  const roleClass = user.role === "super_admin" ? "app-role-super" : "app-role-admin";
+                  const action =
+                    user.role === "admin"
+                      ? `<button type="button" class="secondary small" data-console-remove-admin="${escapeHtml(user.user_id)}">Remove admin</button>`
+                      : "—";
+                  return `
+                    <tr>
+                      <td class="group-user-email admin-console-user">
+                        <strong>${escapeHtml(user.email || "Unknown email")}</strong>
+                        <span class="admin-console-role-mobile ${roleClass}">${role}${isMe ? " · You" : ""}</span>
+                      </td>
+                      <td class="admin-console-role-desktop">
+                        <span class="app-role-badge ${roleClass}">${role}${isMe ? " (You)" : ""}</span>
+                      </td>
+                      <td class="admin-console-action">${action}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        list.querySelectorAll("[data-console-remove-admin]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            if (!confirm("Remove Admin access from this user?")) return;
+            await setUserAdminRole(button.dataset.consoleRemoveAdmin, false);
+            await openAdminConsole();
+          });
+        });
+
+        adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
 
 </script>
   </body>
